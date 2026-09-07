@@ -41,13 +41,13 @@ export const en: Copy = {
         lead: 'That invoice due in 30, 60 or 90 days is money you have already earned. Vankoo validates it against SUNAT, puts it up for auction and a group of investors funds it. You get the cash now.',
         ctaPrimary: 'Advance an invoice',
         ctaSecondary: 'I want to invest',
-        note: 'No new debt: you are advancing what you are already owed.',
+        note: 'You are advancing what you are already owed.',
         demo: {
             label: 'Invoice F001-4592',
             client: 'Minera Yanacocha S.A.',
-            amount: 'S/ 8,200',
+            amount: 'S/ 8,200.00',
             advance: 'You receive today',
-            advanceAmount: 'S/ 7,790',
+            advanceAmount: 'S/ 7,970.40',
             caption: 'An illustrative example of an invoice making the trip.'
         }
     },
@@ -87,8 +87,33 @@ export const en: Copy = {
         exceptions: [
             {name: 'Needs review', detail: 'A person looks at the case before it goes any further.'},
             {name: 'Not eligible', detail: 'The invoice does not meet the criteria. We tell you why.'},
-            {name: 'Rejected', detail: 'The operation stops here. No charges, no small print.'}
+            {name: 'Rejected', detail: 'The operation stops here and you are charged nothing.'}
         ]
+    },
+
+    /** See the Spanish file: the placeholders are filled in by the component. */
+    calculator: {
+        title: 'What does advancing your invoice cost?',
+        lead: 'Move the amount, the term and the grade. The arithmetic is the one you will see inside the platform.',
+        labels: {
+            currency: 'Currency',
+            amount: 'Invoice amount',
+            term: 'Days to maturity',
+            grade: 'Risk grade',
+            youGet: 'You receive today',
+            invoice: 'Invoice',
+            cost: 'Cost of the advance',
+            monthlyRate: 'Monthly rate',
+            tcea: 'Annual effective cost'
+        },
+        currencies: {PEN: 'Soles', USD: 'Dollars'},
+        terms: {30: '30 days', 60: '60 days', 90: '90 days'},
+        grades: {A: 'Low', B: 'Medium', C: 'High'},
+        formula: '{amount} × {rate} × ({days} / 30) = {cost}',
+        investor: 'On the other side: whoever puts {ticket} into this operation receives {return} more after {days} days, a {tea} annual rate.',
+        cta: 'Advance an invoice',
+        disclaimer:
+            'Reference rates from the Peruvian factoring market, between 1.0% and 1.8% monthly. Vankoo does not publish its own yet.'
     },
 
     audiences: {
@@ -101,16 +126,16 @@ export const en: Copy = {
             lead: 'Trade credit comes out of your pocket: you deliver today and collect in three months. Vankoo closes that gap.',
             points: [
                 {
-                    title: 'Cash in days, not quarters',
+                    title: 'The cash lands this week',
                     detail: 'You advance the invoice as soon as it is approved and published, without waiting for the due date.'
                 },
                 {
-                    title: 'It is not a loan',
-                    detail: 'Nothing is added to your balance sheet: you are assigning a receivable that was already yours.'
+                    title: 'It comes out of your receivables',
+                    detail: 'You assign a receivable your books already carried. The debt on your balance sheet stays where it was.'
                 },
                 {
                     title: 'Every invoice on its own merits',
-                    detail: 'No credit line to negotiate and no collateral to pledge. You upload one invoice and that one is assessed.'
+                    detail: 'You upload one invoice and that one is assessed: who owes it, and by when.'
                 },
                 {
                     title: 'You always know where it is',
@@ -121,11 +146,11 @@ export const en: Copy = {
         },
         investor: {
             title: 'Returns with an invoice behind them',
-            lead: 'You are not investing in a promise: you are investing in a document that was issued, validated against SUNAT and has a payment date.',
+            lead: 'Behind every operation there is a document that was issued, validated against SUNAT and carries a payment date.',
             points: [
                 {
                     title: 'Short, definite terms',
-                    detail: 'Operations tied to the invoice due date rather than to an open-ended horizon.'
+                    detail: 'Every operation matures when the invoice does: 30, 60 or 90 days.'
                 },
                 {
                     title: 'Risk stated plainly',
@@ -146,7 +171,7 @@ export const en: Copy = {
 
     risk: {
         eyebrow: 'Risk scoring',
-        title: 'Three letters, no hedging',
+        title: 'A, B or C, and what each one means',
         lead: 'One grading system for the whole platform. The letter travels with the operation from approval to payment, and means the same thing on every screen.',
         grades: [
             {
@@ -171,11 +196,11 @@ export const en: Copy = {
     security: {
         eyebrow: 'Trust',
         title: 'What every operation rests on',
-        lead: 'You do not have to take our word for it: almost everything on this list can be checked outside Vankoo.',
+        lead: 'Almost everything on this list can be checked outside Vankoo.',
         items: [
             {
                 title: 'Validated against SUNAT',
-                detail: 'An invoice that does not exist in the official registry never reaches auction. It is the first filter, not the last.'
+                detail: 'An invoice that does not exist in the official registry never reaches auction. It is the first of several filters.'
             },
             {
                 title: 'Verified identity',

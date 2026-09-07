@@ -1,0 +1,519 @@
+---
+import {APP_ROUTES} from '../../config/site';
+import {useCopy, normalizeLocale} from '../../i18n';
+import BrandPanel from '../decor/BrandPanel.astro';
+import Button from '../ui/Button.astro';
+import {
+    AMOUNTS,
+    CURRENCIES,
+    GRADES,
+    INVESTOR_TEA,
+    INVESTOR_TICKET,
+    MONTHLY_RATE,
+    TERMS,
+    NUMBER_LOCALE,
+    money,
+    percent,
+    quote,
+    type Currency,
+    type Grade,
+    type Term
+} from '../../lib/factoring';
+
+/**
+ * The centrepiece: the discount, done out loud.
+ *
+ * Every other section on this page could belong to any fintech. This one cannot,
+ * because only a factoring product has this arithmetic to show — and showing it
+ * is simultaneously the differentiator, the trust builder, and the answer to the
+ * first question both audiences arrive with: «¿cuánto me cuesta?» / «¿cuánto
+ * gano?». It was previously buried in FAQ item two, four thousand pixels down,
+ * and without a single number in it.
+ *
+ * It is also the only section allowed to be louder than the others: full navy
+ * panel, roughly double the vertical air, and a figure at a size nothing else on
+ * the page uses. A landing where every section weighs the same reads as a
+ * template even when each section is good.
+ *
+ * The controls are an enhancement. What ships in the HTML is a fully worked
+ * example at the default settings, so with JavaScript off the reader still gets
+ * real arithmetic rather than an inert widget — the same bargain the audience
+ * tabs make.
+ */
+const locale = normalizeLocale(Astro.currentLocale);
+const copy = useCopy(locale);
+const {calculator} = copy;
+
+/** «1.4 %» in Spanish, «1.4%» in English: only the space before the sign moves. */
+const numberLocale = NUMBER_LOCALE[locale];
+
+const DEFAULT_CURRENCY: Currency = 'PEN';
+const DEFAULT_TERM: Term = 60;
+const DEFAULT_GRADE: Grade = 'B';
+
+const start = quote(AMOUNTS[DEFAULT_CURRENCY].start, DEFAULT_TERM, DEFAULT_GRADE, DEFAULT_CURRENCY);
+
+/**
+ * The three grades, in the 300 step of each ramp.
+ *
+ * These are primitives rather than the `risk/*` theme tokens, and it is the same
+ * exception the hero's headline earns: the panel is navy in both themes, so a
+ * token that flips would put the light-theme risk colours — `#00804F` and
+ * friends — on a surface that never lightened. The 300 step is exactly what the
+ * dark theme resolves `risk/a|b|c` to, so the letters here are the colours the
+ * product paints them on a dark screen.
+ */
+const gradeColor: Record<Grade, string> = {
+    A: 'var(--vk-green-300)',
+    B: 'var(--vk-amber-300)',
+    C: 'var(--vk-red-300)'
+};
+
+/** Everything the client script needs, so the rates have one source, not two. */
+const config = {
+    monthlyRate: MONTHLY_RATE,
+    investorTea: INVESTOR_TEA,
+    amounts: AMOUNTS,
+    ticket: INVESTOR_TICKET,
+    formula: calculator.formula,
+    investor: calculator.investor,
+    numberLocale
+};
+---
+
+<section id="calculadora" class="relative isolate scroll-mt-24 overflow-hidden py-28 lg:py-44">
+    <BrandPanel />
+
+    <div class="shell relative">
+        {/*
+          Three cells rather than two columns, so the phone can read
+          question -> answer -> controls while the desktop keeps the controls
+          under the question on the left. On a 375px screen the two-column
+          version pushed the figure a full screen below the fold, which put the
+          section's whole point out of sight.
+        */}
+        <div class="grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:items-start lg:gap-x-20 lg:gap-y-10">
+            <div class="reveal order-1 flex flex-col gap-6 lg:col-start-1 lg:row-start-1">
+                {/* Section scale, not hero scale. At `type-hero` this question
+                    runs to five lines in a 0.85fr column and starts competing
+                    with the figure, and the figure is what this section is for:
+                    the number is the loud thing here, the question only asks it. */}
+                <h2 class="type-section max-w-[18ch] text-panel-fg">{calculator.title}</h2>
+                <p class="type-lead max-w-[46ch] text-panel-fg-muted">{calculator.lead}</p>
+            </div>
+
+            {/* Hidden until the script wires them up: without JavaScript a
+                slider that moves and changes nothing is worse than no slider,
+                and the worked example stands on its own. */}
+            <div class="reveal order-3 lg:col-start-1 lg:row-start-2">
+                <form id="vk-calc" class="flex flex-col gap-7" hidden>
+                    <fieldset class="flex flex-col gap-3">
+                        <legend class="field-label">{calculator.labels.currency}</legend>
+                        <div class="segmented">
+                            {
+                                CURRENCIES.map((code) => (
+                                    <label class="segment">
+                                        <input
+                                            type="radio"
+                                            name="currency"
+                                            value={code}
+                                            checked={code === DEFAULT_CURRENCY}
+                                        />
+                                        <span>{calculator.currencies[code]}</span>
+                                    </label>
+                                ))
+                            }
+                        </div>
+                    </fieldset>
+
+                    <div class="flex flex-col gap-3">
+                        <div class="flex items-baseline justify-between gap-4">
+                            <label class="field-label" for="vk-amount">{calculator.labels.amount}</label>
+                            <output id="vk-amount-out" for="vk-amount" class="amount-readout">
+                                {money(start.amount, DEFAULT_CURRENCY, 0)}
+                            </output>
+                        </div>
+                        <input
+                            type="range"
+                            id="vk-amount"
+                            name="amount"
+                            min={AMOUNTS[DEFAULT_CURRENCY].min}
+                            max={AMOUNTS[DEFAULT_CURRENCY].max}
+                            step={AMOUNTS[DEFAULT_CURRENCY].step}
+                            value={AMOUNTS[DEFAULT_CURRENCY].start}
+                        />
+                    </div>
+
+                    <fieldset class="flex flex-col gap-3">
+                        <legend class="field-label">{calculator.labels.term}</legend>
+                        <div class="segmented">
+                            {
+                                TERMS.map((days) => (
+                                    <label class="segment">
+                                        <input type="radio" name="term" value={days} checked={days === DEFAULT_TERM} />
+                                        <span>{calculator.terms[days]}</span>
+                                    </label>
+                                ))
+                            }
+                        </div>
+                    </fieldset>
+
+                    <fieldset class="flex flex-col gap-3">
+                        <legend class="field-label">{calculator.labels.grade}</legend>
+                        <div class="segmented">
+                            {
+                                GRADES.map((grade) => (
+                                    <label class="segment" style={`--grade-color:${gradeColor[grade]}`}>
+                                        <input
+                                            type="radio"
+                                            name="grade"
+                                            value={grade}
+                                            checked={grade === DEFAULT_GRADE}
+                                        />
+                                        <span>
+                                            <b class="grade-letter">{grade}</b>
+                                            {calculator.grades[grade]}
+                                        </span>
+                                    </label>
+                                ))
+                            }
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+
+            <div class="reveal order-2 flex flex-col gap-6 lg:col-start-2 lg:row-start-1 lg:row-span-2">
+                <div class="result rounded-xl border border-white/10 bg-white/[0.06] p-6 backdrop-blur-xl sm:p-8">
+                    <div aria-live="polite">
+                        <p class="text-[length:var(--vk-text-caption-size)] text-panel-fg-muted">
+                            {calculator.labels.youGet}
+                        </p>
+                        <p id="vk-advance" class="figure pt-1 text-action">{money(start.advance, DEFAULT_CURRENCY)}</p>
+
+                        <dl class="mt-8 flex flex-col">
+                            <div class="line">
+                                <dt>{calculator.labels.invoice}</dt>
+                                <dd id="vk-amount-value">{money(start.amount, DEFAULT_CURRENCY)}</dd>
+                            </div>
+                            <div class="line">
+                                <dt>{calculator.labels.cost}</dt>
+                                <dd id="vk-cost">{money(start.cost, DEFAULT_CURRENCY)}</dd>
+                            </div>
+                            <div class="line">
+                                <dt>{calculator.labels.monthlyRate}</dt>
+                                <dd id="vk-rate">{percent(start.monthlyRate, numberLocale)}</dd>
+                            </div>
+                            <div class="line">
+                                <dt>{calculator.labels.tcea}</dt>
+                                <dd id="vk-tcea">{percent(start.tcea, numberLocale)}</dd>
+                            </div>
+                        </dl>
+
+                        {/* The formula, spelled out. A number a reader cannot
+                            reproduce is a number they have to take on faith,
+                            which is the opposite of what this section is for. */}
+                        <p id="vk-formula" class="formula mt-6">
+                            {
+                                calculator.formula
+                                    .replace('{amount}', money(start.amount, DEFAULT_CURRENCY, 0))
+                                    .replace('{rate}', percent(start.monthlyRate, numberLocale))
+                                    .replace('{days}', String(DEFAULT_TERM))
+                                    .replace('{cost}', money(start.cost, DEFAULT_CURRENCY))
+                            }
+                        </p>
+
+                        <hr class="my-7 border-0 border-t border-white/10" />
+
+                        <p id="vk-investor" class="text-panel-fg-muted">
+                            {
+                                calculator.investor
+                                    .replace('{ticket}', money(INVESTOR_TICKET[DEFAULT_CURRENCY], DEFAULT_CURRENCY, 0))
+                                    .replace('{return}', money(start.investorReturn, DEFAULT_CURRENCY))
+                                    .replace('{days}', String(DEFAULT_TERM))
+                                    .replace('{tea}', percent(start.investorTea, numberLocale, 0))
+                            }
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex flex-col items-start gap-5">
+                    <Button href={APP_ROUTES.signUp} icon="arrow-right">{calculator.cta}</Button>
+                    {/* Full-strength muted, for the same reason as `.formula`:
+                        an alpha on this token lands under 4.5:1 where the panel
+                        gradient is lightest. */}
+                    <p class="max-w-[64ch] text-[length:var(--vk-text-caption-size)] text-panel-fg-muted">
+                        {calculator.disclaimer}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    /* The one figure on the page at this size. Poppins and tabular figures, so a
+       number that changes under a slider does not reflow the line it sits on. */
+    .figure {
+        font-family: var(--vk-landing-hero-family);
+        font-weight: var(--vk-landing-hero-weight);
+        font-size: clamp(2.5rem, 5.4vw, 3.75rem);
+        line-height: 1.05;
+        letter-spacing: var(--vk-landing-hero-tracking);
+        font-variant-numeric: tabular-nums;
+    }
+
+    /* A discrete change — grade, term, currency — crossfades through a light
+       blur, which is what stops the eye from reading two overlapping numbers as
+       two objects. Dragging the slider does not: at tens of updates a second,
+       anything but an instant number feels broken, so the script only arms this
+       for the choices a reader makes occasionally. */
+    @media (prefers-reduced-motion: no-preference) {
+        .figure {
+            transition:
+                filter 200ms ease,
+                opacity 200ms ease;
+        }
+
+        .figure.is-updating {
+            filter: blur(2px);
+            opacity: 0.7;
+        }
+    }
+
+    .field-label {
+        font-size: var(--vk-text-caption-size);
+        font-weight: var(--vk-weight-semibold);
+        color: var(--vk-decor-panel-fg-muted);
+    }
+
+    fieldset {
+        margin: 0;
+        padding: 0;
+        border: 0;
+    }
+
+    .amount-readout {
+        font-weight: var(--vk-weight-bold);
+        color: var(--vk-decor-panel-fg);
+        font-variant-numeric: tabular-nums;
+    }
+
+    .segmented {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .segment {
+        flex: 1 1 auto;
+        cursor: pointer;
+    }
+
+    .segment input {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .segment span {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        min-height: var(--vk-control-height-md);
+        padding-inline: 0.875rem;
+        border: 1px solid color-mix(in oklab, var(--vk-decor-panel-fg) 30%, transparent);
+        border-radius: var(--vk-radius-md);
+        color: var(--vk-decor-panel-fg-muted);
+        font-weight: var(--vk-weight-semibold);
+        white-space: nowrap;
+        transition:
+            background-color 160ms ease,
+            border-color 160ms ease,
+            color 160ms ease;
+    }
+
+    /* The focus ring has to follow the checked state onto the label, because the
+       input it belongs to is the one thing here nobody can see. */
+    .segment input:focus-visible + span {
+        outline: var(--vk-border-width-focus) solid var(--vk-border-focus);
+        outline-offset: 2px;
+    }
+
+    .segment input:checked + span {
+        background: color-mix(in oklab, var(--vk-decor-panel-fg) 14%, transparent);
+        border-color: color-mix(in oklab, var(--vk-decor-panel-fg) 55%, transparent);
+        color: var(--vk-decor-panel-fg);
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+        .segment:hover span {
+            border-color: color-mix(in oklab, var(--vk-decor-panel-fg) 50%, transparent);
+        }
+    }
+
+    /* The letter carries the grade's own colour whether or not it is chosen: it
+       is the platform's scoring vocabulary, not a selection state. */
+    .grade-letter {
+        color: var(--grade-color);
+        font-weight: var(--vk-weight-bold);
+    }
+
+    input[type='range'] {
+        width: 100%;
+        height: var(--vk-touch-min);
+        accent-color: var(--vk-action-primary-bg);
+        cursor: pointer;
+    }
+
+    .line {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 1.5rem;
+        padding-block: 0.7rem;
+        border-top: 1px solid color-mix(in oklab, var(--vk-decor-panel-fg) 10%, transparent);
+    }
+
+    .line:first-child {
+        border-top: 0;
+        padding-top: 0;
+    }
+
+    .line dt {
+        color: var(--vk-decor-panel-fg-muted);
+    }
+
+    .line dd {
+        margin: 0;
+        font-weight: var(--vk-weight-semibold);
+        color: var(--vk-decor-panel-fg);
+        font-variant-numeric: tabular-nums;
+    }
+
+    /* The muted token at full strength, not at 85%: the panel is a gradient, and
+       at its light end an alpha on top of an already-muted colour measures 3.85:1
+       at 13px. Size carries the hierarchy here instead, which it can. */
+    .formula {
+        font-size: var(--vk-text-caption-size);
+        line-height: 1.6;
+        color: var(--vk-decor-panel-fg-muted);
+        font-variant-numeric: tabular-nums;
+    }
+</style>
+
+<script is:inline define:vars={{config}}>
+    (() => {
+        const form = document.getElementById('vk-calc');
+        if (!form) return;
+
+        const advance = document.getElementById('vk-advance');
+        const out = {
+            amountReadout: document.getElementById('vk-amount-out'),
+            amount: document.getElementById('vk-amount-value'),
+            cost: document.getElementById('vk-cost'),
+            rate: document.getElementById('vk-rate'),
+            tcea: document.getElementById('vk-tcea'),
+            formula: document.getElementById('vk-formula'),
+            investor: document.getElementById('vk-investor')
+        };
+        const slider = document.getElementById('vk-amount');
+        if (!advance || !slider || Object.values(out).some((node) => !node)) return;
+
+        form.hidden = false;
+
+        const symbol = {PEN: 'S/', USD: 'US$'};
+
+        const money = (value, currency, decimals = 2) =>
+            `${symbol[currency]} ${value.toLocaleString('en-US', {
+                minimumFractionDigits: decimals,
+                maximumFractionDigits: decimals
+            })}`;
+
+        const percent = (value, decimals = 1) => {
+            const figure = (value * 100).toLocaleString(config.numberLocale, {
+                minimumFractionDigits: decimals,
+                maximumFractionDigits: decimals
+            });
+            return config.numberLocale === 'es-PE' ? `${figure} %` : `${figure}%`;
+        };
+
+        /* The same four lines as `src/lib/factoring.ts`, which is where the
+           model is documented and where the rates come from. They are recomputed
+           here on load as well as on change, so if the two ever drift the page
+           contradicts itself on the first frame rather than quietly. */
+        const quote = (amount, days, grade, currency) => {
+            const monthlyRate = config.monthlyRate[grade];
+            const cost = amount * monthlyRate * (days / 30);
+            const value = amount - cost;
+            const tcea = Math.pow(1 + cost / value, 365 / days) - 1;
+            const investorTea = config.investorTea[grade];
+            const investorReturn = config.ticket[currency] * (Math.pow(1 + investorTea, days / 365) - 1);
+            return {amount, cost, advance: value, monthlyRate, tcea, investorReturn, investorTea};
+        };
+
+        const read = (name) => new FormData(form).get(name);
+
+        const render = () => {
+            const currency = read('currency');
+            const days = Number(read('term'));
+            const grade = read('grade');
+            const amount = Number(slider.value);
+            const q = quote(amount, days, grade, currency);
+
+            advance.textContent = money(q.advance, currency);
+            out.amountReadout.textContent = money(amount, currency, 0);
+            out.amount.textContent = money(amount, currency);
+            out.cost.textContent = money(q.cost, currency);
+            out.rate.textContent = percent(q.monthlyRate);
+            out.tcea.textContent = percent(q.tcea);
+            out.formula.textContent = config.formula
+                .replace('{amount}', money(amount, currency, 0))
+                .replace('{rate}', percent(q.monthlyRate))
+                .replace('{days}', String(days))
+                .replace('{cost}', money(q.cost, currency));
+            out.investor.textContent = config.investor
+                .replace('{ticket}', money(config.ticket[currency], currency, 0))
+                .replace('{return}', money(q.investorReturn, currency))
+                .replace('{days}', String(days))
+                .replace('{tea}', percent(q.investorTea, 0));
+        };
+
+        /* Switching currency rescales the slider, because an invoice in dollars
+           is a different size of thing. The position is kept proportional so the
+           handle does not jump to an edge. */
+        const rescale = (currency) => {
+            const range = config.amounts[currency];
+            const previous = slider.max - slider.min;
+            const ratio = previous > 0 ? (slider.value - slider.min) / previous : 0;
+            slider.min = range.min;
+            slider.max = range.max;
+            slider.step = range.step;
+            slider.value = Math.round((range.min + ratio * (range.max - range.min)) / range.step) * range.step;
+        };
+
+        /* Dragging is instant. A choice a reader makes once in a while crossfades
+           through the blur, which is the only place on this page motion is
+           allowed to cost 200ms. */
+        const renderWithFade = () => {
+            const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            if (reduce) return render();
+            advance.classList.add('is-updating');
+            window.setTimeout(() => {
+                render();
+                advance.classList.remove('is-updating');
+            }, 120);
+        };
+
+        slider.addEventListener('input', render);
+
+        form.addEventListener('change', (event) => {
+            if (event.target.name === 'currency') rescale(event.target.value);
+            renderWithFade();
+        });
+
+        render();
+    })();
+</script>

@@ -1,0 +1,212 @@
+---
+import {APP_ROUTES} from '../../config/site';
+import {useCopy, localePath, normalizeLocale, otherLocale} from '../../i18n';
+import Wordmark from '../brand/Wordmark.astro';
+import Icon from '../ui/Icon.astro';
+import Button from '../ui/Button.astro';
+
+const locale = normalizeLocale(Astro.currentLocale);
+const copy = useCopy(locale);
+const other = otherLocale(locale);
+
+const links = [
+    {href: '#como-funciona', label: copy.nav.howItWorks},
+    {href: '#para-tu-mype', label: copy.nav.forBusinesses},
+    {href: '#para-invertir', label: copy.nav.forInvestors},
+    {href: '#preguntas', label: copy.nav.faq}
+];
+---
+
+{/*
+  The header sits over the hero rather than above it, so the brand panel starts
+  at the very top of the page. It gains a surface of its own once the page has
+  scrolled past the hero — see the script below.
+*/}
+<header id="site-header" class="fixed inset-x-0 top-0 z-40 transition-[background-color,box-shadow] duration-300">
+    <nav class="shell flex h-16 items-center justify-between gap-4 lg:h-20" aria-label="Vankoo">
+        <a href={localePath(locale)} class="-my-2.5 shrink-0 py-2.5 text-panel-fg transition-colors" data-nav-ink>
+            <Wordmark class="h-6 w-auto lg:h-7" />
+        </a>
+
+        <ul class="hidden items-center gap-8 lg:flex">
+            {
+                links.map((link) => (
+                    <li>
+                        <a
+                            href={link.href}
+                            class="group/link relative text-[length:var(--vk-landing-body-size)] text-panel-fg-muted transition-colors hover:text-panel-fg"
+                            data-nav-ink-muted
+                        >
+                            {link.label}
+                            <span class="absolute -bottom-1 left-0 h-px w-0 bg-action transition-[width] duration-300 ease-out group-hover/link:w-full" />
+                        </a>
+                    </li>
+                ))
+            }
+        </ul>
+
+        <div class="flex items-center gap-2">
+            <a
+                href={localePath(other)}
+                hreflang={other}
+                aria-label={copy.nav.switchToEnglish}
+                title={copy.nav.switchToEnglish}
+                class="inline-flex h-11 items-center gap-1.5 rounded-md border border-panel-fg/45 px-2.5 sm:h-9 text-[length:var(--vk-text-caption-size)] font-semibold text-panel-fg transition-colors hover:bg-panel-fg/10"
+                data-nav-chip
+            >
+                <Icon name="globe" class="size-4" />
+                {other.toUpperCase()}
+            </a>
+
+            {/*
+              The icon shows the action, not the state: in the light theme it
+              paints a moon, because pressing it turns the lights off. Both
+              glyphs ship and one is hidden, so the button is right on the very
+              first frame instead of after hydration.
+            */}
+            <button
+                type="button"
+                id="theme-toggle"
+                class="inline-flex size-11 items-center justify-center rounded-md border border-panel-fg/45 text-panel-fg transition-colors hover:bg-panel-fg/10 sm:size-9"
+                data-nav-chip
+            >
+                <Icon name="moon" class="size-4 dark:hidden" />
+                <Icon name="sun" class="hidden size-4 dark:block" />
+                <span class="sr-only" data-theme-label>{copy.nav.switchToDark}</span>
+            </button>
+
+            <a
+                href={APP_ROUTES.signIn}
+                class="hidden h-9 items-center rounded-md px-3 text-[length:var(--vk-landing-body-size)] font-semibold text-panel-fg transition-colors hover:bg-panel-fg/10 sm:inline-flex"
+                data-nav-ink
+            >
+                {copy.nav.signIn}
+            </a>
+
+            {/* Wrapped rather than given `hidden` directly: the button sets its
+                own `inline-flex`, and against a class of equal specificity the
+                stylesheet's order decides, not this attribute's. The wrapper
+                takes the responsive display so there is nothing to lose. */}
+            <span class="hidden sm:block">
+                <Button href={APP_ROUTES.signUp} size="md">
+                    {copy.nav.signUp}
+                </Button>
+            </span>
+
+            <button
+                type="button"
+                id="menu-toggle"
+                class="inline-flex size-11 items-center justify-center rounded-md border border-panel-fg/45 text-panel-fg sm:size-9 lg:hidden"
+                aria-expanded="false"
+                aria-controls="mobile-menu"
+                aria-label={copy.nav.openMenu}
+                data-nav-chip
+            >
+                <Icon name="menu" class="size-5" />
+            </button>
+        </div>
+    </nav>
+
+    {/* The small-screen menu. A plain hidden panel, not a dialog: it holds four
+        links and closing it by tapping one is the whole interaction. */}
+    <div id="mobile-menu" hidden class="border-t border-line-subtle bg-surface-raised lg:hidden">
+        <ul class="shell flex flex-col py-2">
+            {
+                links.map((link) => (
+                    <li>
+                        <a href={link.href} class="block py-3 text-fg" data-menu-link>
+                            {link.label}
+                        </a>
+                    </li>
+                ))
+            }
+            <li class="flex gap-3 py-3">
+                <Button href={APP_ROUTES.signIn} variant="ghost" size="md" class="flex-1">
+                    {copy.nav.signIn}
+                </Button>
+                <Button href={APP_ROUTES.signUp} size="md" class="flex-1">
+                    {copy.nav.signUp}
+                </Button>
+            </li>
+        </ul>
+    </div>
+</header>
+
+<script is:inline define:vars={{toDark: copy.nav.switchToDark, toLight: copy.nav.switchToLight, openLabel: copy.nav.openMenu, closeLabel: copy.nav.closeMenu}}>
+    (() => {
+        const root = document.documentElement;
+
+        /* --- Theme ---------------------------------------------------------
+           Writing the key is what stops the system preference from being
+           followed on this device from now on. An explicit choice that sunset
+           could undo would not be a choice. */
+        const toggle = document.getElementById('theme-toggle');
+        const label = toggle?.querySelector('[data-theme-label]');
+
+        const syncLabel = () => {
+            if (label) label.textContent = root.classList.contains('dark') ? toLight : toDark;
+        };
+        syncLabel();
+
+        toggle?.addEventListener('click', () => {
+            const next = root.classList.contains('dark') ? 'light' : 'dark';
+            root.classList.toggle('dark', next === 'dark');
+            try {
+                localStorage.setItem('vankoo.theme', next);
+            } catch {
+                /* Private mode: the theme still changes, it just will not be remembered. */
+            }
+            syncLabel();
+        });
+
+        /* --- Small-screen menu --------------------------------------------- */
+        const menuButton = document.getElementById('menu-toggle');
+        const menu = document.getElementById('mobile-menu');
+
+        const setMenu = (open) => {
+            if (!menu || !menuButton) return;
+            menu.hidden = !open;
+            menuButton.setAttribute('aria-expanded', String(open));
+            menuButton.setAttribute('aria-label', open ? closeLabel : openLabel);
+        };
+
+        menuButton?.addEventListener('click', () => setMenu(menu?.hidden === true));
+        menu?.querySelectorAll('[data-menu-link]').forEach((link) => link.addEventListener('click', () => setMenu(false)));
+
+        /* --- The header's own surface ---------------------------------------
+           Over the hero the header sits on the navy panel and its ink is the
+           fixed panel foreground. Past the hero it needs a surface of its own,
+           and the ink has to become theme-aware or it is white on a white page.
+           The switch is driven by a sentinel at the end of the hero rather than
+           by a scroll listener, so nothing runs on the scroll thread. */
+        const header = document.getElementById('site-header');
+        const sentinel = document.getElementById('hero-sentinel');
+        if (!header || !sentinel || !('IntersectionObserver' in window)) return;
+
+        const inkOverPanel = ['text-panel-fg'];
+        const inkOverSurface = ['text-fg'];
+
+        const setPinned = (pinned) => {
+            header.classList.toggle('bg-surface-raised/85', pinned);
+            header.classList.toggle('backdrop-blur-md', pinned);
+            header.classList.toggle('shadow-elevation-1', pinned);
+
+            header.querySelectorAll('[data-nav-ink]').forEach((node) => {
+                node.classList.toggle(inkOverPanel[0], !pinned);
+                node.classList.toggle(inkOverSurface[0], pinned);
+            });
+            header.querySelectorAll('[data-nav-ink-muted]').forEach((node) => {
+                node.classList.toggle('text-panel-fg-muted', !pinned);
+                node.classList.toggle('text-fg-secondary', pinned);
+            });
+            header.querySelectorAll('[data-nav-chip]').forEach((node) => {
+                node.classList.toggle('text-panel-fg', !pinned);
+                node.classList.toggle('border-panel-fg/45', !pinned);
+                node.classList.toggle('text-fg', pinned);
+                node.classList.toggle('border-line-strong', pinned);
+            });
+        };
+
+        new IntersectionObserver(([entry]) => setPinned(!entry.isIntersecting), {threshold: 0}).observe(sentinel);
+    })();
+</script>

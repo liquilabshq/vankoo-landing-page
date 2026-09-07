@@ -1,0 +1,74 @@
+---
+import {useCopy, localePath, normalizeLocale} from '../../i18n';
+import Wordmark from '../brand/Wordmark.astro';
+import DotField from '../decor/DotField.astro';
+
+const locale = normalizeLocale(Astro.currentLocale);
+const copy = useCopy(locale);
+const year = new Date().getFullYear();
+
+const columns = [
+    {
+        title: copy.footer.product,
+        links: [
+            {href: '#como-funciona', label: copy.footer.links.howItWorks},
+            {href: '#para-tu-mype', label: copy.footer.links.forBusinesses},
+            {href: '#para-invertir', label: copy.footer.links.forInvestors},
+            {href: '#preguntas', label: copy.footer.links.faq}
+        ]
+    },
+    {
+        title: copy.footer.legal,
+        links: [
+            {href: '#', label: copy.footer.links.terms},
+            {href: '#', label: copy.footer.links.privacy},
+            {href: '#', label: copy.footer.links.help}
+        ]
+    }
+];
+---
+
+<footer class="relative isolate overflow-hidden border-t border-line-subtle bg-surface-raised">
+    <DotField fade="bottom" class="opacity-40" />
+
+    <div class="shell relative py-14 lg:py-16">
+        <div class="flex flex-col gap-10 md:flex-row md:justify-between">
+            <div class="flex max-w-xs flex-col gap-3">
+                <a href={localePath(locale)} class="-my-2 inline-block py-2 text-fg">
+                    <Wordmark class="h-7 w-auto" />
+                </a>
+                <p class="text-fg-secondary">{copy.footer.tagline}</p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-10 sm:gap-16">
+                {
+                    columns.map((column) => (
+                        <div class="flex flex-col gap-3">
+                            <p class="type-eyebrow text-fg-secondary">{column.title}</p>
+                            <ul class="flex flex-col gap-2">
+                                {column.links.map((link) => (
+                                    <li>
+                                        <a href={link.href} class="-my-3 block py-3 text-fg-secondary transition-colors hover:text-fg">
+                                            {link.label}
+                                        </a>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    ))
+                }
+            </div>
+        </div>
+
+        {/*
+          The disclaimer is not fine print here on purpose. Vankoo is coursework:
+          it does not provide financial services and does not take anyone's
+          money, and a page that talks this confidently about invoices and
+          returns has to say so where it can actually be read.
+        */}
+        <div class="mt-12 flex flex-col gap-4 border-t border-line-subtle pt-6 text-[length:var(--vk-text-caption-size)] text-fg-secondary md:flex-row md:items-center md:justify-between">
+            <p class="max-w-2xl">{copy.footer.academic}</p>
+            <p class="shrink-0">© {year} {copy.footer.rights}</p>
+        </div>
+    </div>
+</footer>

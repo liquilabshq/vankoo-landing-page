@@ -1,0 +1,67 @@
+---
+import Icon from './Icon.astro';
+import type {IconName} from './icons';
+
+/**
+ * A call to action, in the three weights the design system defines.
+ *
+ * Always an anchor: nothing on this page submits anything, every action leads
+ * somewhere. Sizes come from the density tokens, so the same button is 48px tall
+ * on a desktop and 56px on a phone without a breakpoint here.
+ *
+ * `primary` is brand green with a navy label. Never white on the green — that
+ * pair measures 2.16:1, and it is the first hard rule of the system.
+ *
+ * Do not pass display utilities through `class`. The button sets `inline-flex`
+ * itself, and two classes of equal specificity are settled by the order of the
+ * stylesheet rather than by the order of the attribute — a `hidden` handed in
+ * here loses, silently. Wrap the button instead.
+ */
+interface Props {
+    href: string;
+    variant?: 'primary' | 'secondary' | 'ghost' | 'panel';
+    size?: 'md' | 'lg';
+    icon?: IconName;
+    class?: string;
+    external?: boolean;
+}
+
+const {href, variant = 'primary', size = 'lg', icon, class: className = '', external = false} = Astro.props;
+
+const base =
+    'group/button inline-flex items-center justify-center gap-2 rounded-lg font-semibold whitespace-nowrap transition-[background-color,color,box-shadow,transform] duration-200 ease-out active:translate-y-px';
+
+const variants = {
+    primary: 'bg-action text-on-action hover:bg-action-hover shadow-elevation-1 hover:shadow-elevation-2',
+    secondary: 'bg-action-secondary text-on-action-secondary hover:bg-action-secondary-hover',
+    // The ghost of this system carries a border — it is an outlined tertiary,
+    // not the borderless ghost other libraries mean by the word. The border is
+    // `border/strong` because anything lighter fails 3:1 against the surface.
+    ghost: 'bg-ghost text-fg border border-line-strong hover:bg-ghost-hover',
+    // For use on the navy brand panel, where the foreground is fixed white and
+    // cannot flip with the theme.
+    panel: 'bg-transparent text-panel-fg border border-panel-fg/50 hover:bg-panel-fg/10'
+} as const;
+
+const sizes = {
+    md: 'h-[var(--vk-control-height-md)] px-5 text-[length:var(--vk-landing-button-size)]',
+    lg: 'h-[var(--vk-control-height-lg)] px-6 text-[length:var(--vk-landing-button-size)]'
+} as const;
+---
+
+<a
+    href={href}
+    class:list={[base, variants[variant], sizes[size], className]}
+    rel={external ? 'noopener noreferrer' : undefined}
+    target={external ? '_blank' : undefined}
+>
+    <slot />
+    {
+        icon && (
+            <Icon
+                name={icon}
+                class="size-4 transition-transform duration-200 ease-out group-hover/button:translate-x-0.5"
+            />
+        )
+    }
+</a>

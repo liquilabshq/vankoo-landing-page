@@ -1,0 +1,110 @@
+---
+import DotField from './DotField.astro';
+
+/**
+ * The brand panel: a navy field with two green lights drifting across it.
+ *
+ * Straight from `Decor/BrandPanel` in the design system. The gradient runs
+ * `decor/panel-from` to `decor/panel-to`, and both — along with the two lights
+ * and the foreground — are fixed in light and dark alike, because the panel is
+ * navy whichever theme the page is in. That is why text on it must use
+ * `decor/panel-fg` and never `text/inverse`: the latter flips with the theme and
+ * lands navy on navy, 1.92:1, unreadable.
+ *
+ * Two deliberate departures from the Figma component, both in its favour:
+ *
+ * - The lights are radial gradients rather than blurred circles. Figma reaches
+ *   the same look with a 620px shape at 16% under a 240px blur; on the web a
+ *   filter that size is a real compositing cost on every frame, and a gradient
+ *   from the same colour at the same alpha is visually identical for free. The
+ *   opacity ceiling the system sets — under 20% — is respected either way.
+ * - They drift. Figma prototypes a 36s cycle at roughly 7% amplitude, which is
+ *   the motion this reproduces. It stops entirely under `prefers-reduced-motion`.
+ */
+interface Props {
+    class?: string;
+    dots?: boolean;
+}
+
+const {class: className = '', dots = true} = Astro.props;
+---
+
+<div aria-hidden="true" class:list={['pointer-events-none absolute inset-0 overflow-hidden', className]}>
+    <div class="panel-base absolute inset-0"></div>
+    <div class="light light-primary"></div>
+    <div class="light light-secondary"></div>
+    {dots && <DotField fade="radial" class="opacity-60" />}
+</div>
+
+<style>
+    .panel-base {
+        background:
+            radial-gradient(120% 120% at 15% 0%, var(--vk-decor-panel-from) 0%, transparent 60%),
+            linear-gradient(160deg, var(--vk-decor-panel-from) 0%, var(--vk-decor-panel-to) 62%);
+    }
+
+    .light {
+        position: absolute;
+        border-radius: var(--vk-radius-full);
+        /* The alpha lives here rather than on the element so the drift animation
+           only ever touches `transform` and stays on the compositor. */
+        background: radial-gradient(
+            circle closest-side,
+            color-mix(in oklab, var(--light-color) calc(var(--light-alpha) * 100%), transparent) 0%,
+            transparent 100%
+        );
+        will-change: transform;
+    }
+
+    /* 620px at 16%, per the design system's own measurements. */
+    .light-primary {
+        --light-color: var(--vk-decor-light-primary);
+        --light-alpha: 0.16;
+        width: 620px;
+        height: 620px;
+        top: -14%;
+        right: -8%;
+    }
+
+    /* 420px at 10%, the quieter of the two. */
+    .light-secondary {
+        --light-color: var(--vk-decor-light-secondary);
+        --light-alpha: 0.1;
+        width: 420px;
+        height: 420px;
+        bottom: -18%;
+        left: -6%;
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+        .light-primary {
+            animation: drift-primary 36s ease-in-out infinite;
+        }
+
+        .light-secondary {
+            animation: drift-secondary 36s ease-in-out infinite;
+        }
+    }
+
+    /* One cycle, 36 seconds, about 7% of travel — slow enough that it reads as
+       atmosphere rather than as something moving on the page. */
+    @keyframes drift-primary {
+        0%,
+        100% {
+            transform: translate3d(0, 0, 0);
+        }
+        50% {
+            transform: translate3d(-7%, 5%, 0);
+        }
+    }
+
+    @keyframes drift-secondary {
+        0%,
+        100% {
+            transform: translate3d(0, 0, 0);
+        }
+        50% {
+            transform: translate3d(6%, -6%, 0);
+        }
+    }
+</style>

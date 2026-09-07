@@ -1,0 +1,280 @@
+---
+import {APP_ROUTES} from '../../config/site';
+import {useCopy, normalizeLocale} from '../../i18n';
+import BrandPanel from '../decor/BrandPanel.astro';
+import Button from '../ui/Button.astro';
+import Icon from '../ui/Icon.astro';
+
+const copy = useCopy(normalizeLocale(Astro.currentLocale));
+const {hero, pipeline} = copy;
+---
+
+<section class="relative isolate overflow-hidden">
+    <BrandPanel />
+
+    <div class="shell relative grid gap-14 pt-28 pb-20 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:gap-16 lg:pt-36 lg:pb-28">
+        <div class="reveal is-visible flex flex-col items-start gap-6">
+            <span class="type-eyebrow inline-flex items-center gap-2 rounded-full border border-panel-fg/20 px-3 py-1.5 text-panel-fg">
+                <span class="relative flex size-1.5">
+                    <span class="absolute inline-flex size-full animate-ping rounded-full bg-action opacity-75"></span>
+                    <span class="relative inline-flex size-1.5 rounded-full bg-action"></span>
+                </span>
+                {hero.eyebrow}
+            </span>
+
+            <h1 class="type-hero max-w-[15ch] text-panel-fg">
+                {hero.titleLead}{' '}
+                <span class="accent">{hero.titleAccent}</span>
+            </h1>
+
+            <p class="type-lead max-w-[52ch] text-panel-fg-muted">{hero.lead}</p>
+
+            <div class="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center">
+                <Button href={APP_ROUTES.signUp} icon="arrow-right">{hero.ctaPrimary}</Button>
+                <Button href="#para-invertir" variant="panel">{hero.ctaSecondary}</Button>
+            </div>
+
+            <p class="flex items-center gap-2 pt-1 text-[length:var(--vk-text-caption-size)] text-panel-fg-muted">
+                <Icon name="check" class="size-4 text-action" />
+                {hero.note}
+            </p>
+        </div>
+
+        {/*
+          The product telling its own story: one invoice walking the rail.
+
+          The milestones, their order and their Spanish names are the design
+          system's `Riel` component, which in turn groups the eleven
+          `InvoiceStatus` values of the Invoicing service. Nothing here is
+          decorative shorthand — it is the real pipeline, at the real names.
+        */}
+        <div class="reveal is-visible relative" aria-hidden="true">
+            <div class="invoice-card rounded-xl border border-white/10 bg-white/[0.07] p-5 backdrop-blur-xl sm:p-6">
+                <div class="flex items-start justify-between gap-4">
+                    <div>
+                        <p class="text-[length:var(--vk-text-caption-size)] text-panel-fg-muted">{hero.demo.label}</p>
+                        <p class="pt-1 font-semibold text-panel-fg">{hero.demo.client}</p>
+                    </div>
+                    <p class="text-[length:var(--vk-text-h3-size)] font-bold text-panel-fg">{hero.demo.amount}</p>
+                </div>
+
+                <ol class="rail mt-7 flex flex-col gap-0">
+                    {
+                        pipeline.steps.map((step, index) => (
+                            <li class="rail-step" style={`--step-index:${index}`}>
+                                <span class="rail-marker">
+                                    <span class="rail-dot" />
+                                    {index < pipeline.steps.length - 1 && <span class="rail-track" />}
+                                </span>
+                                <span class="rail-body">
+                                    <span class="rail-name">{step.name}</span>
+                                    <span class="rail-who">{step.who}</span>
+                                </span>
+                            </li>
+                        ))
+                    }
+                </ol>
+
+                <div class="mt-6 flex items-center justify-between rounded-lg border border-action/25 bg-action/10 px-4 py-3">
+                    <span class="text-[length:var(--vk-text-caption-size)] text-panel-fg-muted">{hero.demo.advance}</span>
+                    <span class="text-[length:var(--vk-text-h3-size)] font-bold text-action">{hero.demo.advanceAmount}</span>
+                </div>
+            </div>
+
+            <p class="pt-3 text-center text-[length:var(--vk-text-caption-size)] text-panel-fg-muted/70">
+                {hero.demo.caption}
+            </p>
+        </div>
+    </div>
+
+    {/* Marks where the hero ends, so the header can find out it has left the
+        brand panel without listening to scroll. */}
+    <div id="hero-sentinel" class="absolute bottom-0 h-px w-full"></div>
+</section>
+
+<style>
+    /* The green half of the headline. A gradient rather than a flat fill because
+       the brand green on navy is bright enough to shout; fading it into the pale
+       green step keeps the emphasis without the glare. */
+    .accent {
+        background: linear-gradient(100deg, var(--vk-green-400) 0%, var(--vk-green-300) 55%, var(--vk-green-200) 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    .invoice-card {
+        box-shadow: var(--vk-elevation-3);
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+        .invoice-card {
+            animation: card-in 900ms cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+    }
+
+    @keyframes card-in {
+        from {
+            opacity: 0;
+            transform: translateY(1.5rem) scale(0.98);
+        }
+    }
+
+    .rail-step {
+        display: grid;
+        grid-template-columns: 1.5rem 1fr;
+        gap: 0.75rem;
+        min-height: 3rem;
+    }
+
+    .rail-marker {
+        position: relative;
+        display: flex;
+        justify-content: center;
+        padding-top: 0.35rem;
+    }
+
+    .rail-dot {
+        position: relative;
+        z-index: 1;
+        width: 0.625rem;
+        height: 0.625rem;
+        border-radius: var(--vk-radius-full);
+        /* Pending is `border/strong`, never `border/default`: on this surface the
+           lighter token measures 1.63:1 and the track simply disappears. */
+        background: var(--vk-border-strong);
+    }
+
+    .rail-track {
+        position: absolute;
+        top: 0.95rem;
+        bottom: -0.35rem;
+        width: 2px;
+        background: var(--vk-border-strong);
+        overflow: hidden;
+    }
+
+    .rail-track::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: var(--vk-status-approved-fg);
+        transform: scaleY(0);
+        transform-origin: top;
+    }
+
+    .rail-name {
+        display: block;
+        font-weight: 600;
+        color: var(--vk-decor-panel-fg-muted);
+    }
+
+    .rail-who {
+        display: block;
+        font-size: var(--vk-text-caption-size);
+        color: var(--vk-decor-panel-fg-muted);
+        opacity: 0.6;
+    }
+
+    /* The walk itself.
+
+       Nine seconds for five milestones, then a pause and a restart. Each step is
+       driven by its own index, so the sequence is one keyframe set rather than
+       five. It is decoration around content that is already legible, which is
+       why the whole thing simply does not run under reduced motion — the rail
+       then shows every milestone in its resting state, which is still the true
+       picture of the pipeline. */
+    @media (prefers-reduced-motion: no-preference) {
+        .rail-dot {
+            animation: dot-advance 9s calc(var(--step-index) * 1.1s) infinite;
+        }
+
+        .rail-track::after {
+            animation: track-fill 9s calc(var(--step-index) * 1.1s + 0.25s) infinite;
+        }
+
+        .rail-name {
+            animation: name-advance 9s calc(var(--step-index) * 1.1s) infinite;
+        }
+
+        /* The last milestone is the auction, where investors work rather than
+           the system. It rests on the brand green instead of navy. */
+        .rail-step:last-child .rail-dot {
+            animation-name: dot-advance-final;
+        }
+    }
+
+    @keyframes dot-advance {
+        0%,
+        4% {
+            background: var(--vk-border-strong);
+            box-shadow: none;
+        }
+        /* Indigo: the system is working on its own. */
+        8%,
+        14% {
+            background: var(--vk-status-ocr-processing-fg);
+            box-shadow: 0 0 0 4px color-mix(in oklab, var(--vk-status-ocr-processing-fg) 25%, transparent);
+        }
+        /* Navy: the milestone is done. */
+        18%,
+        92% {
+            background: var(--vk-status-approved-fg);
+            box-shadow: 0 0 0 0 transparent;
+        }
+        100% {
+            background: var(--vk-border-strong);
+        }
+    }
+
+    @keyframes dot-advance-final {
+        0%,
+        4% {
+            background: var(--vk-border-strong);
+        }
+        8%,
+        14% {
+            background: var(--vk-status-ocr-processing-fg);
+            box-shadow: 0 0 0 4px color-mix(in oklab, var(--vk-status-ocr-processing-fg) 25%, transparent);
+        }
+        18%,
+        92% {
+            background: var(--vk-green-400);
+            box-shadow: 0 0 0 4px color-mix(in oklab, var(--vk-green-400) 25%, transparent);
+        }
+        100% {
+            background: var(--vk-border-strong);
+        }
+    }
+
+    @keyframes track-fill {
+        0%,
+        4% {
+            transform: scaleY(0);
+        }
+        16%,
+        92% {
+            transform: scaleY(1);
+        }
+        100% {
+            transform: scaleY(0);
+        }
+    }
+
+    @keyframes name-advance {
+        0%,
+        6% {
+            color: var(--vk-decor-panel-fg-muted);
+            opacity: 0.55;
+        }
+        14%,
+        92% {
+            color: var(--vk-decor-panel-fg);
+            opacity: 1;
+        }
+        100% {
+            color: var(--vk-decor-panel-fg-muted);
+            opacity: 0.55;
+        }
+    }
+</style>

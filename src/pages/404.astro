@@ -1,0 +1,25 @@
+---
+import Base from '../layouts/Base.astro';
+import Nav from '../components/layout/Nav.astro';
+import Footer from '../components/layout/Footer.astro';
+import BrandPanel from '../components/decor/BrandPanel.astro';
+import Button from '../components/ui/Button.astro';
+import {useCopy, localePath, normalizeLocale} from '../i18n';
+
+const locale = normalizeLocale(Astro.currentLocale);
+const copy = useCopy(locale);
+---
+
+<Base title={`${copy.notFound.title} · Vankoo`} indexable={false}>
+    <Nav />
+    <main id="contenido" class="relative isolate flex min-h-[70vh] items-center overflow-hidden">
+        <BrandPanel />
+        <div class="shell relative flex flex-col items-start gap-6 py-24">
+            <span class="type-eyebrow text-panel-fg-muted">404</span>
+            <h1 class="type-hero max-w-[14ch] text-panel-fg">{copy.notFound.title}</h1>
+            <p class="type-lead max-w-[46ch] text-panel-fg-muted">{copy.notFound.lead}</p>
+            <Button href={localePath(locale)} icon="arrow-right">{copy.notFound.cta}</Button>
+        </div>
+    </main>
+    <Footer />
+</Base>

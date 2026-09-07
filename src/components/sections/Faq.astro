@@ -1,0 +1,73 @@
+---
+import {useCopy, normalizeLocale} from '../../i18n';
+import SectionHeading from '../ui/SectionHeading.astro';
+import Icon from '../ui/Icon.astro';
+
+const copy = useCopy(normalizeLocale(Astro.currentLocale));
+const {faq} = copy;
+---
+
+<section id="preguntas" class="relative isolate scroll-mt-24 py-20 lg:py-28">
+    <div class="shell grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
+        <SectionHeading eyebrow={faq.eyebrow} title={faq.title} class="reveal lg:sticky lg:top-28 lg:self-start" />
+
+        {/*
+          Native <details>. No JavaScript, keyboard and screen-reader behaviour
+          for free, and the answers are in the DOM whether or not anything runs —
+          which is also what lets the FAQ structured data in the layout match
+          what a crawler actually sees.
+        */}
+        <div class="reveal-stagger flex flex-col">
+            {
+                faq.items.map((item) => (
+                    <details class="faq group border-b border-line-subtle">
+                        <summary class="flex cursor-pointer items-center justify-between gap-6 py-5 font-semibold text-fg marker:content-none [&::-webkit-details-marker]:hidden">
+                            {item.question}
+                            <Icon
+                                name="chevron-down"
+                                class="size-5 shrink-0 text-fg-muted transition-transform duration-300 group-open:rotate-180"
+                            />
+                        </summary>
+                        <div class="faq-body">
+                            <p class="pb-5 text-fg-secondary">{item.answer}</p>
+                        </div>
+                    </details>
+                ))
+            }
+        </div>
+    </div>
+</section>
+
+<style>
+    /* Opening a <details> is a jump cut by default: the browser flips the
+       content from `display: none` and there is nothing to animate. The
+       `::details-content` pseudo-element plus `interpolate-size` is what finally
+       makes the height animatable — `allow-discrete` is the part that lets the
+       display change wait for the transition instead of preempting it.
+
+       Guarded behind @supports, and where it is unsupported the answer appears
+       instantly, which is what it has always done. The markup is untouched
+       either way, so nothing about the content depends on this. */
+    @media (prefers-reduced-motion: no-preference) {
+        @supports selector(details::details-content) and (interpolate-size: allow-keywords) {
+            .faq {
+                interpolate-size: allow-keywords;
+            }
+
+            .faq::details-content {
+                block-size: 0;
+                overflow: hidden;
+                opacity: 0;
+                transition:
+                    block-size 320ms cubic-bezier(0.16, 1, 0.3, 1),
+                    opacity 240ms ease-out,
+                    content-visibility 320ms allow-discrete;
+            }
+
+            .faq[open]::details-content {
+                block-size: auto;
+                opacity: 1;
+            }
+        }
+    }
+</style>

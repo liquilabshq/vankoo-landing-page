@@ -1,0 +1,164 @@
+---
+import {APP_ROUTES} from '../../config/site';
+import {useCopy, normalizeLocale} from '../../i18n';
+import SectionHeading from '../ui/SectionHeading.astro';
+import Button from '../ui/Button.astro';
+import Icon from '../ui/Icon.astro';
+import type {IconName} from '../ui/icons';
+
+const copy = useCopy(normalizeLocale(Astro.currentLocale));
+const {audiences} = copy;
+
+const panels = [
+    {
+        id: 'para-tu-mype',
+        tab: audiences.tabs.business,
+        content: audiences.business,
+        icons: ['banknote', 'shield-check', 'file-text', 'scan-line'] as IconName[],
+        cta: APP_ROUTES.signUp
+    },
+    {
+        id: 'para-invertir',
+        tab: audiences.tabs.investor,
+        content: audiences.investor,
+        icons: ['clock', 'badge-check', 'users', 'wallet'] as IconName[],
+        cta: APP_ROUTES.signUp
+    }
+];
+---
+
+<section class="relative isolate bg-surface-sunken py-20 lg:py-28">
+    <div class="shell">
+        <SectionHeading
+            eyebrow={audiences.eyebrow}
+            title={audiences.title}
+            lead={audiences.lead}
+            align="center"
+            class="reveal mx-auto max-w-3xl"
+        />
+
+        {/*
+          Two audiences, one control.
+
+          The panels are both in the HTML and both visible before the script
+          runs, so with JavaScript off this degrades to two stacked sections
+          rather than to one hidden one. The script turns them into tabs; it is
+          an enhancement, never the thing holding the content up.
+        */}
+        <div class="mt-12 flex justify-center">
+            <div
+                id="audience-tabs"
+                role="tablist"
+                aria-label={audiences.title}
+                class="inline-flex gap-1 rounded-full border border-line-subtle bg-surface-raised p-1"
+                hidden
+            >
+                {
+                    panels.map((panel, index) => (
+                        <button
+                            type="button"
+                            role="tab"
+                            id={`tab-${panel.id}`}
+                            aria-controls={`panel-${panel.id}`}
+                            aria-selected={index === 0 ? 'true' : 'false'}
+                            tabindex={index === 0 ? 0 : -1}
+                            class="rounded-full px-5 py-2.5 font-semibold text-fg-secondary transition-colors duration-200 aria-selected:bg-action aria-selected:text-on-action"
+                        >
+                            {panel.tab}
+                        </button>
+                    ))
+                }
+            </div>
+        </div>
+
+        <div class="mt-10 flex flex-col gap-10">
+            {
+                panels.map((panel) => (
+                    <div
+                        id={`panel-${panel.id}`}
+                        role="tabpanel"
+                        aria-labelledby={`tab-${panel.id}`}
+                        data-audience-panel
+                        class="reveal scroll-mt-24"
+                    >
+                        {/* The anchor the header links to. Separate from the panel
+                            so a deep link still lands right when the panel is the
+                            hidden one — the script opens it on arrival. */}
+                        <span id={panel.id} class="block -translate-y-24" />
+
+                        <div class="grid gap-8 rounded-xl border border-line-subtle bg-surface-raised p-6 lg:grid-cols-[0.9fr_1.1fr] lg:gap-12 lg:p-10">
+                            <div class="flex flex-col gap-4">
+                                <h3 class="type-card max-w-[18ch] text-fg">{panel.content.title}</h3>
+                                <p class="text-fg-secondary">{panel.content.lead}</p>
+                                <div class="pt-2">
+                                    <Button href={panel.cta} icon="arrow-right" size="md">
+                                        {panel.content.cta}
+                                    </Button>
+                                </div>
+                            </div>
+
+                            <ul class="grid gap-x-8 gap-y-6 sm:grid-cols-2">
+                                {panel.content.points.map((point, index) => (
+                                    <li class="flex flex-col gap-2">
+                                        <span class="flex size-9 items-center justify-center rounded-lg bg-action/12 text-green-finance">
+                                            <Icon name={panel.icons[index]} class="size-4.5" />
+                                        </span>
+                                        <span class="font-semibold text-fg">{point.title}</span>
+                                        <span class="text-fg-secondary">{point.detail}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    </div>
+                ))
+            }
+        </div>
+    </div>
+</section>
+
+<script is:inline>
+    (() => {
+        const tablist = document.getElementById('audience-tabs');
+        const panels = Array.from(document.querySelectorAll('[data-audience-panel]'));
+        if (!tablist || panels.length !== 2) return;
+
+        const tabs = Array.from(tablist.querySelectorAll('[role="tab"]'));
+        tablist.hidden = false;
+
+        const select = (index) => {
+            tabs.forEach((tab, position) => {
+                const selected = position === index;
+                tab.setAttribute('aria-selected', String(selected));
+                tab.tabIndex = selected ? 0 : -1;
+            });
+            panels.forEach((panel, position) => {
+                panel.hidden = position !== index;
+            });
+        };
+
+        tabs.forEach((tab, index) => tab.addEventListener('click', () => select(index)));
+
+        /* Arrow keys move between tabs, which is what the tablist pattern
+           promises the moment the role is on the element. */
+        tablist.addEventListener('keydown', (event) => {
+            const current = tabs.findIndex((tab) => tab.getAttribute('aria-selected') === 'true');
+            const step = event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0;
+            if (!step) return;
+            event.preventDefault();
+            const next = (current + step + tabs.length) % tabs.length;
+            select(next);
+            tabs[next].focus();
+        });
+
+        /* A link straight to the investor side has to open that panel, or it
+           scrolls to something that is not on screen. */
+        const openFromHash = () => {
+            const index = panels.findIndex((panel) => panel.querySelector(`#${CSS.escape(location.hash.slice(1))}`));
+            if (index >= 0) select(index);
+        };
+
+        select(0);
+        if (location.hash) openFromHash();
+        window.addEventListener('hashchange', openFromHash);
+    })();
+</script>

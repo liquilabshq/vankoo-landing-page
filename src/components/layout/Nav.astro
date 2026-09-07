@@ -133,7 +133,18 @@ const links = [
 </header>
 
 <script is:inline define:vars={{toDark: copy.nav.switchToDark, toLight: copy.nav.switchToLight, openLabel: copy.nav.openMenu, closeLabel: copy.nav.closeMenu}}>
+    /*
+      Waits for the document.
+
+      This script sits inside the header, so it runs while the parser is still
+      part-way down the page — before <main> exists. The sentinel it watches is
+      at the bottom of the hero, so reading it now returns null and the whole
+      pinning behaviour is skipped in silence, leaving the header's white ink
+      over the pale surface below the hero. Nothing here needs to run early:
+      the theme is already painted by the head script.
+    */
     (() => {
+        const start = () => {
         const root = document.documentElement;
 
         /* --- Theme ---------------------------------------------------------
@@ -208,5 +219,12 @@ const links = [
         };
 
         new IntersectionObserver(([entry]) => setPinned(!entry.isIntersecting), {threshold: 0}).observe(sentinel);
+        };
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', start, {once: true});
+        } else {
+            start();
+        }
     })();
 </script>

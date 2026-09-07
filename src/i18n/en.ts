@@ -55,7 +55,7 @@ export const en: Copy = {
     pipeline: {
         eyebrow: 'From invoice to cash',
         title: 'Five milestones, and the system handles four',
-        lead: 'Every invoice runs through eleven internal states grouped into five milestones. The colour says who is working: indigo when the system is, navy once a milestone is done, amber when a person is needed.',
+        lead: 'Every invoice runs through eleven internal states grouped into five milestones. The colour says who is working on each one.',
         steps: [
             {
                 name: 'Received',
@@ -83,6 +83,8 @@ export const en: Copy = {
                 who: 'Investors'
             }
         ],
+        sunatNote:
+            'An invoice that does not exist in SUNAT’s official registry never reaches auction. It is the first of several filters.',
         exceptionsTitle: 'And when something does not add up',
         exceptions: [
             {name: 'Needs review', detail: 'A person looks at the case before it goes any further.'},
@@ -193,27 +195,13 @@ export const en: Copy = {
         note: 'A grade describes the operation. It does not promise an outcome.'
     },
 
-    security: {
-        eyebrow: 'Trust',
-        title: 'What every operation rests on',
-        lead: 'Almost everything on this list can be checked outside Vankoo.',
+    /** See the Spanish file for why the «Trust» section was dissolved. */
+    guarantees: {
+        title: 'And underneath all of it',
         items: [
-            {
-                title: 'Validated against SUNAT',
-                detail: 'An invoice that does not exist in the official registry never reaches auction. It is the first of several filters.'
-            },
-            {
-                title: 'Verified identity',
-                detail: 'Companies by RUC, people by national ID. Nobody invests or collects without clearing verification.'
-            },
-            {
-                title: 'A wallet you can audit',
-                detail: 'Every deposit, movement and balance is recorded. In soles and in dollars.'
-            },
-            {
-                title: 'Protected access',
-                detail: 'Signed sessions and hashed passwords. Your role decides what you see, and nothing more.'
-            }
+            {title: 'Verified identity', detail: 'Companies by RUC and people by national ID, before collecting or investing.'},
+            {title: 'A wallet you can audit', detail: 'Every deposit and balance recorded, in soles and in dollars.'},
+            {title: 'Protected access', detail: 'Signed sessions, and your role decides what you see.'}
         ]
     },
 

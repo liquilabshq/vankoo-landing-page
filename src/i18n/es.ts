@@ -61,7 +61,7 @@ export const es = {
     pipeline: {
         eyebrow: 'De la factura al efectivo',
         title: 'Cinco hitos, y el sistema hace cuatro',
-        lead: 'Cada factura recorre once estados internos agrupados en cinco hitos. El color dice quién trabaja: morado cuando trabaja el sistema, navy cuando el hito ya está hecho, ámbar cuando hace falta una persona.',
+        lead: 'Cada factura recorre once estados internos agrupados en cinco hitos. El color dice quién trabaja en cada uno.',
         steps: [
             {
                 name: 'Recibida',
@@ -89,6 +89,8 @@ export const es = {
                 who: 'Inversionistas'
             }
         ],
+        sunatNote:
+            'Una factura que no existe en el registro oficial de SUNAT no llega nunca a subasta. Es el primero de varios filtros.',
         exceptionsTitle: 'Y cuando algo no cuadra',
         exceptions: [
             {name: 'Requiere revisión', detail: 'Una persona mira el caso antes de que siga avanzando.'},
@@ -209,27 +211,21 @@ export const es = {
         note: 'La clasificación describe la operación, no promete un resultado.'
     },
 
-    security: {
-        eyebrow: 'Confianza',
-        title: 'Lo que sostiene cada operación',
-        lead: 'Casi todo lo de esta lista se puede comprobar fuera de Vankoo.',
+    /**
+     * What used to be a four-card «Confianza» section of its own.
+     *
+     * Three of those four items were on every fintech landing page ever made,
+     * and the fourth — the SUNAT check — belongs beside the milestone that
+     * performs it, not in a grid two screens later. So the SUNAT line moved into
+     * `pipeline.sunatNote` and what is left rides under the risk grades as a
+     * single strip: supporting detail, rendered as supporting detail.
+     */
+    guarantees: {
+        title: 'Y por debajo de todo esto',
         items: [
-            {
-                title: 'Validación contra SUNAT',
-                detail: 'Una factura que no existe en el registro oficial no llega nunca a subasta. Es el primero de varios filtros.'
-            },
-            {
-                title: 'Identidad verificada',
-                detail: 'Empresas por RUC y personas por DNI. Nadie invierte ni cobra sin pasar por verificación.'
-            },
-            {
-                title: 'Billetera con trazabilidad',
-                detail: 'Cada depósito, cada movimiento y cada saldo quedan asentados. En soles y en dólares.'
-            },
-            {
-                title: 'Acceso protegido',
-                detail: 'Sesiones firmadas y contraseñas cifradas. Tu rol decide lo que ves, y nada más.'
-            }
+            {title: 'Identidad verificada', detail: 'Empresas por RUC y personas por DNI, antes de cobrar o invertir.'},
+            {title: 'Billetera con trazabilidad', detail: 'Cada depósito y cada saldo asentados, en soles y en dólares.'},
+            {title: 'Acceso protegido', detail: 'Sesiones firmadas, y tu rol decide lo que ves.'}
         ]
     },
 

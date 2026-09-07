@@ -21,6 +21,29 @@ const exceptionIcons: IconName[] = ['triangle-alert', 'circle-alert', 'circle-x'
  * product: amber when a person is needed, grey and red when the road ends.
  */
 const exceptionTone = ['text-warning', 'text-fg-muted', 'text-error'];
+
+/**
+ * The colour of a milestone says who is working on it.
+ *
+ * The section's own lead promises this, and until now it did not deliver: all
+ * five tiles were painted `accent/ai` unconditionally, so a reader who took the
+ * sentence seriously went looking for a code that was not there.
+ *
+ * The three tones are the product's own, not decorative choices. `accent/ai` is
+ * literally the token for the automated steps, `status/published` is the state
+ * the auction milestone puts an invoice into, and `status/sunat-validated` is
+ * the platform's own blue for the step the MYPE performs itself. Keyed by the
+ * actor string so the legend below and the tiles can never disagree: both read
+ * the same map.
+ */
+const actorTone: Record<string, {surface: string; ink: string; dot: string}> = {
+    [pipeline.steps[0].who]: {surface: 'bg-step-done-bg', ink: 'text-step-done', dot: 'bg-step-done'},
+    [pipeline.steps[1].who]: {surface: 'bg-step-auto-bg', ink: 'text-step-auto', dot: 'bg-step-auto'},
+    [pipeline.steps[4].who]: {surface: 'bg-step-published-bg', ink: 'text-step-published', dot: 'bg-step-published'}
+};
+
+/** Each distinct actor once, in the order the invoice meets them. */
+const actors = [...new Set(pipeline.steps.map((step) => step.who))];
 ---
 
 <section id="como-funciona" class="relative isolate py-20 lg:py-28">
@@ -32,32 +55,69 @@ const exceptionTone = ['text-warning', 'text-fg-muted', 'text-error'];
             class="reveal max-w-3xl"
         />
 
+        {/* The legend the lead promises, as three chips rather than as a
+            sentence describing colours the reader then has to hold in mind. */}
+        <ul class="reveal mt-6 flex flex-wrap items-center gap-x-5 gap-y-2">
+            {
+                actors.map((actor) => (
+                    <li class="flex items-center gap-2 text-[length:var(--vk-text-caption-size)] text-fg-secondary">
+                        <span class:list={['size-2.5 rounded-full', actorTone[actor].dot]} />
+                        {actor}
+                    </li>
+                ))
+            }
+        </ul>
+
         {/*
           The five milestones. On a wide screen they read left to right as a
           track; stacked on a phone, where a five-column track would be four
           columns too many.
         */}
-        <ol class="reveal-stagger mt-14 grid gap-4 md:grid-cols-2 lg:grid-cols-5 lg:gap-3">
+        <ol class="reveal-stagger mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-5 lg:gap-3">
             {
                 pipeline.steps.map((step, index) => (
                     <li class="step-card group relative flex flex-col gap-4 rounded-xl border border-line-subtle bg-surface-raised p-5 transition-[transform,box-shadow,border-color] duration-300 hover:-translate-y-1 hover:border-line hover:shadow-elevation-2">
-                        <span class="flex items-center justify-between">
-                            <span class="flex size-10 items-center justify-center rounded-lg bg-ai-bg text-ai transition-colors duration-300 group-hover:bg-action group-hover:text-on-action">
+                        {/* Icon and actor share the top row, so the chips line
+                            up across all five cards however many lines a title
+                            takes. The `01`-`05` counters that used to sit here
+                            are gone: five steps in a row, read in order, already
+                            say which one is third. */}
+                        <span class="flex items-center justify-between gap-3">
+                            <span
+                                class:list={[
+                                    'flex size-10 shrink-0 items-center justify-center rounded-lg',
+                                    actorTone[step.who].surface,
+                                    actorTone[step.who].ink
+                                ]}
+                            >
                                 <Icon name={stepIcons[index]} class="size-5" />
                             </span>
-                            <span class="text-[length:var(--vk-text-caption-size)] font-semibold text-fg-muted tabular-nums">
-                                0{index + 1}
+                            {/* The actor was the smallest text in this card, and
+                                it is the section's whole argument. */}
+                            <span
+                                class:list={[
+                                    'inline-flex items-center rounded-full px-2.5 py-1 text-[length:var(--vk-text-caption-size)] font-semibold',
+                                    actorTone[step.who].surface,
+                                    actorTone[step.who].ink
+                                ]}
+                            >
+                                {step.who}
                             </span>
                         </span>
-                        <span class="flex flex-col gap-1.5">
-                            <span class="type-card text-fg">{step.name}</span>
-                            <span class="type-eyebrow text-fg-secondary">{step.who}</span>
-                        </span>
+                        <span class="type-card text-fg">{step.name}</span>
                         <span class="text-fg-secondary">{step.detail}</span>
                     </li>
                 ))
             }
         </ol>
+
+        {/* The SUNAT check, beside the milestone that performs it. It used to be
+            the first of four cards in a «Confianza» section two screens down,
+            which is a long way from the step it is about. */}
+        <p class="reveal mt-6 flex max-w-3xl items-start gap-3 text-fg-secondary">
+            <Icon name="shield-check" class="mt-1 size-5 shrink-0 text-green-finance" />
+            {pipeline.sunatNote}
+        </p>
 
         {/*
           The three ways an invoice stops. A landing page that only draws the

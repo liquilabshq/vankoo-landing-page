@@ -1,9 +1,13 @@
 ---
 import {useCopy, normalizeLocale} from '../../i18n';
 import SectionHeading from '../ui/SectionHeading.astro';
+import Icon from '../ui/Icon.astro';
+import type {IconName} from '../ui/icons';
 
 const copy = useCopy(normalizeLocale(Astro.currentLocale));
-const {risk} = copy;
+const {risk, guarantees} = copy;
+
+const guaranteeIcons: IconName[] = ['badge-check', 'wallet', 'lock'];
 
 /**
  * The three grades, in the tokens the design system reserves for exactly this.
@@ -45,6 +49,43 @@ const tones = [
             </ul>
         </div>
 
-        <p class="reveal mt-8 text-[length:var(--vk-text-caption-size)] text-fg-secondary lg:text-right">{risk.note}</p>
+        {/* Left-aligned under the heading it belongs to. It used to be
+            `lg:text-right` beneath a two-column grid it does not span, so it
+            lined up with nothing. */}
+        <p class="reveal mt-8 max-w-[58ch] text-[length:var(--vk-text-caption-size)] text-fg-secondary">
+            {risk.note}
+        </p>
+
+        {/*
+          What is left of the «Confianza» section, as a strip rather than as four
+          cards of its own.
+
+          Three of those four items are on every fintech landing page ever built,
+          and a full section with its own heading claimed they were the argument.
+          They are not: they are the floor. So they ride here as supporting
+          detail, in a layout family the page does not use anywhere else — a row
+          under one hairline, no borders, no tiles, no cards.
+        */}
+        <div class="reveal mt-16 border-t border-line-subtle pt-8">
+            {/* A plain small heading, not the uppercase eyebrow style: this page
+                already carries more of those than it earns, and the strip does
+                not need a seventh. */}
+            <p class="font-semibold text-fg">{guarantees.title}</p>
+            <ul class="mt-5 grid gap-x-10 gap-y-6 sm:grid-cols-3">
+                {
+                    guarantees.items.map((item, index) => (
+                        <li class="flex gap-3">
+                            <Icon name={guaranteeIcons[index]} class="mt-0.5 size-5 shrink-0 text-green-finance" />
+                            <span>
+                                <span class="block font-semibold text-fg">{item.title}</span>
+                                <span class="block text-[length:var(--vk-text-caption-size)] text-fg-secondary">
+                                    {item.detail}
+                                </span>
+                            </span>
+                        </li>
+                    ))
+                }
+            </ul>
+        </div>
     </div>
 </section>

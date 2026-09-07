@@ -114,9 +114,17 @@
 
     /* The five milestones of the invoice rail. The colour says who is working:
        indigo when the system runs on its own, navy once a milestone is done,
-       amber when a person is needed, grey for not yet, red for no way out. */
+       amber when a person is needed, grey for not yet, red for no way out.
+
+       The `-bg` pairs are what the milestone cards paint their tiles and actor
+       chips with; the bare names stay the foreground, and are also what the
+       legend's dots fill with, where a solid saturated colour is wanted. */
     --color-step-done: var(--vk-status-sunat-validated-fg);
+    --color-step-done-bg: var(--vk-status-sunat-validated-bg);
     --color-step-auto: var(--vk-status-ocr-processing-fg);
+    --color-step-auto-bg: var(--vk-status-ocr-processing-bg);
+    --color-step-published: var(--vk-status-published-fg);
+    --color-step-published-bg: var(--vk-status-published-bg);
     --color-step-attention: var(--vk-status-requires-review-fg);
     --color-step-pending: var(--vk-border-strong);
     --color-step-dead: var(--vk-status-rejected-fg);

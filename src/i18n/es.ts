@@ -41,14 +41,14 @@ export const es = {
         lead: 'Esa factura a 30, 60 o 90 días es dinero que ya ganaste. Vankoo la valida contra SUNAT, la publica en subasta y un grupo de inversionistas la financia. Tú recibes el efectivo ahora.',
         ctaPrimary: 'Adelanta tu factura',
         ctaSecondary: 'Quiero invertir',
-        note: 'Sin deuda nueva: adelantas lo que ya te deben.',
+        note: 'Adelantas lo que ya te deben.',
         demo: {
             label: 'Factura F001-4592',
             client: 'Minera Yanacocha S.A.',
-            amount: 'S/ 8,200',
+            amount: 'S/ 8,200.00',
             advance: 'Recibes hoy',
-            advanceAmount: 'S/ 7,790',
-            caption: 'Ejemplo ilustrativo del recorrido de una factura.'
+            advanceAmount: 'S/ 7,970.40',
+            caption: 'Ejemplo ilustrativo: 60 días, clasificación B.'
         }
     },
 
@@ -93,8 +93,43 @@ export const es = {
         exceptions: [
             {name: 'Requiere revisión', detail: 'Una persona mira el caso antes de que siga avanzando.'},
             {name: 'No elegible', detail: 'La factura no cumple los criterios. Te decimos por qué.'},
-            {name: 'Rechazada', detail: 'La operación no sigue. Sin cargos y sin letra pequeña.'}
+            {name: 'Rechazada', detail: 'La operación no sigue y no se te cobra nada.'}
         ]
+    },
+
+    /**
+     * The discount, spelled out. The rates and the model live in
+     * `src/lib/factoring.ts`, which documents where each number comes from; this
+     * is only the language wrapped around them.
+     *
+     * `{amount}`, `{rate}`, `{days}`, `{cost}`, `{ticket}`, `{return}` and
+     * `{tea}` are filled in twice: once at build time for the worked example that
+     * ships in the HTML, and once by the script on every change. The placeholders
+     * stay in the copy rather than in the component so a translator can move them
+     * where the sentence needs them.
+     */
+    calculator: {
+        title: '¿Cuánto cuesta adelantar tu factura?',
+        lead: 'Mueve el monto, el plazo y la clasificación. La resta es la misma que verás dentro de la plataforma.',
+        labels: {
+            currency: 'Moneda',
+            amount: 'Monto de la factura',
+            term: 'Días hasta el vencimiento',
+            grade: 'Clasificación de riesgo',
+            youGet: 'Recibes hoy',
+            invoice: 'Factura',
+            cost: 'Costo del adelanto',
+            monthlyRate: 'Tasa mensual',
+            tcea: 'TCEA'
+        },
+        currencies: {PEN: 'Soles', USD: 'Dólares'},
+        terms: {30: '30 días', 60: '60 días', 90: '90 días'},
+        grades: {A: 'Bajo', B: 'Medio', C: 'Alto'},
+        formula: '{amount} × {rate} × ({days} / 30) = {cost}',
+        investor: 'Del otro lado: quien pone {ticket} en esta operación recibe {return} de más a los {days} días, un {tea} TEA.',
+        cta: 'Adelanta tu factura',
+        disclaimer:
+            'Tasas de referencia del mercado peruano de factoring, entre 1.0 % y 1.8 % mensual. Vankoo todavía no publica las suyas.'
     },
 
     audiences: {
@@ -107,16 +142,16 @@ export const es = {
             lead: 'El crédito comercial lo pagas tú: entregas hoy y cobras en tres meses. Vankoo cierra ese hueco.',
             points: [
                 {
-                    title: 'Efectivo en días, no en trimestres',
+                    title: 'El efectivo entra esta semana',
                     detail: 'Adelantas la factura en cuanto queda aprobada y publicada, sin esperar al vencimiento.'
                 },
                 {
-                    title: 'No es un préstamo',
-                    detail: 'No sumas deuda a tu balance: cedes un derecho de cobro que ya era tuyo.'
+                    title: 'Sale de tus cuentas por cobrar',
+                    detail: 'Cedes un derecho de cobro que ya figuraba en tu contabilidad. La deuda de tu balance queda igual.'
                 },
                 {
                     title: 'Cada factura, su propio caso',
-                    detail: 'No hay línea que negociar ni garantías que hipotecar. Subes una factura y esa se evalúa.'
+                    detail: 'Subes una factura y se evalúa esa: quién la debe pagar y para cuándo.'
                 },
                 {
                     title: 'Sabes siempre dónde está',
@@ -127,11 +162,11 @@ export const es = {
         },
         investor: {
             title: 'Rentabilidad con una factura detrás',
-            lead: 'No inviertes en una promesa: inviertes en un comprobante emitido, validado contra SUNAT y con una fecha de pago.',
+            lead: 'Detrás de cada operación hay un comprobante emitido, validado contra SUNAT y con fecha de pago.',
             points: [
                 {
                     title: 'Plazos cortos y concretos',
-                    detail: 'Operaciones atadas al vencimiento de la factura, no a un horizonte abierto.'
+                    detail: 'Cada operación vence cuando vence la factura: 30, 60 o 90 días.'
                 },
                 {
                     title: 'Riesgo con nombre y letra',
@@ -152,7 +187,7 @@ export const es = {
 
     risk: {
         eyebrow: 'Scoring de riesgo',
-        title: 'Tres letras, sin ambigüedad',
+        title: 'A, B o C, y qué significa cada una',
         lead: 'Un solo sistema de clasificación para toda la plataforma. La letra viaja con la operación desde que se aprueba hasta que se paga, y significa lo mismo en cada pantalla.',
         grades: [
             {
@@ -177,11 +212,11 @@ export const es = {
     security: {
         eyebrow: 'Confianza',
         title: 'Lo que sostiene cada operación',
-        lead: 'No hace falta creernos: casi todo lo de esta lista es verificable por fuera de Vankoo.',
+        lead: 'Casi todo lo de esta lista se puede comprobar fuera de Vankoo.',
         items: [
             {
                 title: 'Validación contra SUNAT',
-                detail: 'Una factura que no existe en el registro oficial no llega nunca a subasta. Es el primer filtro, no el último.'
+                detail: 'Una factura que no existe en el registro oficial no llega nunca a subasta. Es el primero de varios filtros.'
             },
             {
                 title: 'Identidad verificada',

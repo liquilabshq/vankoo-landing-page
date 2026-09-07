@@ -3,6 +3,7 @@ import Nav from './layout/Nav.astro';
 import Footer from './layout/Footer.astro';
 import Hero from './sections/Hero.astro';
 import Pipeline from './sections/Pipeline.astro';
+import Calculator from './sections/Calculator.astro';
 import Audiences from './sections/Audiences.astro';
 import Risk from './sections/Risk.astro';
 import Security from './sections/Security.astro';
@@ -23,6 +24,9 @@ import FinalCta from './sections/FinalCta.astro';
 <main id="contenido">
     <Hero />
     <Pipeline />
+    {/* Straight after the five milestones, because «¿y cuánto me cuesta?» is the
+        question the milestones leave the reader holding. */}
+    <Calculator />
     <Audiences />
     <Risk />
     <Security />

@@ -95,9 +95,9 @@ V|1. Primitives|Value|radius/md|var(--vk-radius-md)|8|-|CORNER_RADIUS
 V|1. Primitives|Value|radius/lg|var(--vk-radius-lg)|12|-|CORNER_RADIUS
 V|1. Primitives|Value|radius/xl|var(--vk-radius-xl)|16|-|CORNER_RADIUS
 V|1. Primitives|Value|radius/full|var(--vk-radius-full)|9999|-|CORNER_RADIUS
-V|1. Primitives|Value|border/hairline|var(--vk-border-hairline)|1|-|STROKE_FLOAT
-V|1. Primitives|Value|border/thick|var(--vk-border-thick)|2|-|STROKE_FLOAT
-V|1. Primitives|Value|border/focus|var(--vk-border-focus)|3|-|STROKE_FLOAT
+V|1. Primitives|Value|border/hairline|var(--vk-border-width-hairline)|1|-|STROKE_FLOAT
+V|1. Primitives|Value|border/thick|var(--vk-border-width-thick)|2|-|STROKE_FLOAT
+V|1. Primitives|Value|border/focus|var(--vk-border-width-focus)|3|-|STROKE_FLOAT
 V|1. Primitives|Value|font-size/11|var(--vk-font-size-11)|11|-|-
 V|1. Primitives|Value|font-size/12|var(--vk-font-size-12)|12|-|-
 V|1. Primitives|Value|font-size/13|var(--vk-font-size-13)|13|-|-
@@ -320,8 +320,10 @@ V|2. Theme|Light|decor/panel-fg|--vk-decor-panel-fg|#FFFFFF|base/white|SHAPE_FIL
 V|2. Theme|Dark|decor/panel-fg|--vk-decor-panel-fg|#FFFFFF|base/white|SHAPE_FILL+TEXT_FILL
 V|2. Theme|Light|surface/field|var(--vk-surface-field)|#EFF6FD|gray/50|FRAME_FILL+SHAPE_FILL
 V|2. Theme|Dark|surface/field|var(--vk-surface-field)|#071D33|navy/950|FRAME_FILL+SHAPE_FILL
-V|2. Theme|Light|decor/panel-fg-muted|-|#C3CDD8|-|TEXT_FILL
-V|2. Theme|Dark|decor/panel-fg-muted|-|#C3CDD8|-|TEXT_FILL
+V|2. Theme|Light|decor/panel-fg-muted|--vk-decor-panel-fg-muted|#C3CDD8|-|TEXT_FILL
+V|2. Theme|Dark|decor/panel-fg-muted|--vk-decor-panel-fg-muted|#C3CDD8|-|TEXT_FILL
+V|2. Theme|Light|decor/panel-fg-positive|-|#7DDBB7|-|TEXT_FILL
+V|2. Theme|Dark|decor/panel-fg-positive|-|#7DDBB7|-|TEXT_FILL
 V|3. Density|Desktop|text/display/size|var(--vk-text-display-size)|56|font-size/56|FONT_SIZE
 V|3. Density|Mobile|text/display/size|var(--vk-text-display-size)|36|font-size/36|FONT_SIZE
 V|3. Density|Desktop|text/display/lh|var(--vk-text-display-lh)|68|line-height/68|LINE_HEIGHT

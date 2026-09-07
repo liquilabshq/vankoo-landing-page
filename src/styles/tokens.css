@@ -8,10 +8,10 @@
      .dark                   only what the Dark theme changes
      @media (width < 48rem)  only what the Mobile density changes
 
-   One rename is applied on the way in. Figma gives both the 3 px focus stroke
-   and the focus-ring colour the codeSyntax --vk-border-focus; flattened into one
-   namespace the colour wins and the width vanishes without a word. The stroke
-   widths are emitted as --vk-border-width-*. */
+   Every name here is Figma's own codeSyntax. The generator rewrites none of
+   them; it only refuses to run if two variables would claim the same one, since
+   flattening Figma's collections into CSS's single namespace makes the second
+   declaration win and the first vanish without a word. */
 
 :root {
     color-scheme: light;
@@ -247,6 +247,7 @@
     --vk-decor-panel-fg: #FFFFFF;
     --vk-surface-field: #EFF6FD;
     --vk-decor-panel-fg-muted: #C3CDD8;
+    --vk-decor-panel-fg-positive: #7DDBB7;
 
     /* ---- Density: desktop. Only these are overridden on narrow viewports. ---- */
     --vk-text-display-size: 56px;
@@ -417,6 +418,7 @@
     --vk-decor-panel-fg: #FFFFFF;
     --vk-surface-field: #071D33;
     --vk-decor-panel-fg-muted: #C3CDD8;
+    --vk-decor-panel-fg-positive: #7DDBB7;
 }
 
 /* The mobile density. It rides on the viewport rather than on a class because

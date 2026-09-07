@@ -218,7 +218,41 @@ const links = [
             });
         };
 
-        new IntersectionObserver(([entry]) => setPinned(!entry.isIntersecting), {threshold: 0}).observe(sentinel);
+        /*
+          «Has the hero gone past the header?», not «is the sentinel off screen».
+
+          The sentinel sits at the bottom of the hero, and off screen covers two
+          opposite situations: scrolled past it, and not yet down to it. On a
+          desktop the hero is shorter than the viewport so the sentinel is
+          visible at rest and only the first case ever came up; on a phone the
+          hero is nearly twice the screen, so the page loaded with the sentinel
+          below the fold and the header pinned itself over the brand panel.
+
+          Reading the sentinel's own position settles it. The root is inset by
+          the header's height so the crossing fires exactly when the hero's
+          bottom edge reaches the bottom of the header — the moment the header
+          stops having navy behind it. Re-measured on resize, because that
+          height changes at the lg breakpoint.
+        */
+        let observer = null;
+
+        const observe = () => {
+            if (observer) observer.disconnect();
+            const offset = header.offsetHeight;
+            observer = new IntersectionObserver(([entry]) => setPinned(entry.boundingClientRect.top <= offset), {
+                rootMargin: `-${offset}px 0px 0px 0px`,
+                threshold: 0
+            });
+            observer.observe(sentinel);
+        };
+
+        observe();
+
+        let resizeTimer = 0;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(observe, 200);
+        });
         };
 
         if (document.readyState === 'loading') {

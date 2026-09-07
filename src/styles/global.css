@@ -89,6 +89,7 @@
     --color-panel-to: var(--vk-decor-panel-to);
     --color-panel-fg: var(--vk-decor-panel-fg);
     --color-panel-fg-muted: var(--vk-decor-panel-fg-muted);
+    --color-panel-fg-positive: var(--vk-decor-panel-fg-positive);
     --color-decor-light: var(--vk-decor-light-primary);
     --color-decor-light-2: var(--vk-decor-light-secondary);
     --color-decor-dot: var(--vk-decor-dot);

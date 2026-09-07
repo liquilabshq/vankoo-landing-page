@@ -1,21 +1,25 @@
 ---
 /**
- * The eyebrow / heading / lead trio every section opens with.
+ * The heading and lead every section opens with.
  *
- * All three styles are Figma's: `Landing/Eyebrow` in Poppins at +10% tracking
- * and uppercase, `Landing/H2` in Poppins at -1%, `Landing/Lead` in Plus Jakarta
- * Sans. The eyebrow's uppercasing is a CSS transform rather than typed capitals,
- * so a screen reader still reads a word and not a row of letters.
+ * Both styles are Figma's: `Landing/H2` in Poppins at -1%, `Landing/Lead` in
+ * Plus Jakarta Sans.
+ *
+ * There used to be an eyebrow above the heading, in every section, each with an
+ * identical green dot in front of it. Six of them on one page is the most
+ * mechanical tell there is that a layout was assembled rather than composed, and
+ * none of them told a reader anything the heading underneath did not: a section
+ * is already categorised by where it sits on the page. The heading carries its
+ * own weight.
  */
 interface Props {
-    eyebrow: string;
     title: string;
     lead?: string;
     align?: 'start' | 'center';
     class?: string;
 }
 
-const {eyebrow, title, lead, align = 'start', class: className = ''} = Astro.props;
+const {title, lead, align = 'start', class: className = ''} = Astro.props;
 ---
 
 <div
@@ -25,10 +29,6 @@ const {eyebrow, title, lead, align = 'start', class: className = ''} = Astro.pro
         className
     ]}
 >
-    <span class="type-eyebrow inline-flex items-center gap-2 text-green-finance">
-        <span class="inline-block size-1.5 rounded-full bg-action"></span>
-        {eyebrow}
-    </span>
     <h2 class="type-section max-w-[20ch] text-fg">{title}</h2>
     {lead && <p class:list={['type-lead max-w-[58ch]', align === 'center' && 'mx-auto']}>{lead}</p>}
 </div>

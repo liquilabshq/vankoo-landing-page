@@ -35,7 +35,6 @@ export const es = {
     },
 
     hero: {
-        eyebrow: 'Crowdfactoring peruano',
         titleLead: 'Tu factura ya vale.',
         titleAccent: 'Cóbrala hoy.',
         lead: 'Esa factura a 30, 60 o 90 días es dinero que ya ganaste. Vankoo la valida contra SUNAT, la publica en subasta y un grupo de inversionistas la financia. Tú recibes el efectivo ahora.',
@@ -59,7 +58,6 @@ export const es = {
      * service all tell the same story.
      */
     pipeline: {
-        eyebrow: 'De la factura al efectivo',
         title: 'Cinco hitos, y el sistema hace cuatro',
         lead: 'Cada factura recorre once estados internos agrupados en cinco hitos. El color dice quién trabaja en cada uno.',
         steps: [
@@ -135,7 +133,6 @@ export const es = {
     },
 
     audiences: {
-        eyebrow: 'Dos lados, un mismo libro',
         title: 'Quien cobra y quien financia, en la misma plataforma',
         lead: 'La factura de una MYPE es la oportunidad de un inversionista. Vankoo es lo que hay en medio.',
         tabs: {business: 'Para tu MYPE', investor: 'Para invertir'},
@@ -188,7 +185,6 @@ export const es = {
     },
 
     risk: {
-        eyebrow: 'Scoring de riesgo',
         title: 'A, B o C, y qué significa cada una',
         lead: 'Un solo sistema de clasificación para toda la plataforma. La letra viaja con la operación desde que se aprueba hasta que se paga, y significa lo mismo en cada pantalla.',
         grades: [
@@ -230,7 +226,6 @@ export const es = {
     },
 
     faq: {
-        eyebrow: 'Preguntas',
         title: 'Lo que todo el mundo pregunta primero',
         items: [
             {

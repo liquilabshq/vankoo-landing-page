@@ -35,7 +35,6 @@ export const en: Copy = {
     },
 
     hero: {
-        eyebrow: 'Peruvian crowdfactoring',
         titleLead: 'Your invoice is already worth something.',
         titleAccent: 'Get paid today.',
         lead: 'That invoice due in 30, 60 or 90 days is money you have already earned. Vankoo validates it against SUNAT, puts it up for auction and a group of investors funds it. You get the cash now.',
@@ -53,7 +52,6 @@ export const en: Copy = {
     },
 
     pipeline: {
-        eyebrow: 'From invoice to cash',
         title: 'Five milestones, and the system handles four',
         lead: 'Every invoice runs through eleven internal states grouped into five milestones. The colour says who is working on each one.',
         steps: [
@@ -119,7 +117,6 @@ export const en: Copy = {
     },
 
     audiences: {
-        eyebrow: 'Two sides, one ledger',
         title: 'The business getting paid and the investor funding it, in one place',
         lead: "One business's invoice is another person's opportunity. Vankoo is what sits in between.",
         tabs: {business: 'For your business', investor: 'For investors'},
@@ -172,7 +169,6 @@ export const en: Copy = {
     },
 
     risk: {
-        eyebrow: 'Risk scoring',
         title: 'A, B or C, and what each one means',
         lead: 'One grading system for the whole platform. The letter travels with the operation from approval to payment, and means the same thing on every screen.',
         grades: [
@@ -206,7 +202,6 @@ export const en: Copy = {
     },
 
     faq: {
-        eyebrow: 'Questions',
         title: 'What everyone asks first',
         items: [
             {

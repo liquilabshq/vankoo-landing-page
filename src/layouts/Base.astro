@@ -1,0 +1,181 @@
+---
+import {SITE_URL, LOCALES, DEFAULT_LOCALE} from '../config/site';
+import {useCopy, htmlLang, localePath, normalizeLocale} from '../i18n';
+import '../styles/global.css';
+
+interface Props {
+    /** The path this page occupies in every language, without a locale prefix. */
+    path?: string;
+    title?: string;
+    description?: string;
+    /** Off for the 404, which has nothing to index. */
+    indexable?: boolean;
+}
+
+const locale = normalizeLocale(Astro.currentLocale);
+const copy = useCopy(locale);
+const {path = '/', title = copy.meta.title, description = copy.meta.description, indexable = true} = Astro.props;
+
+const canonical = new URL(localePath(locale, path), SITE_URL).href;
+const alternates = LOCALES.map((code) => ({
+    code,
+    href: new URL(localePath(code, path), SITE_URL).href
+}));
+const ogImage = new URL('/og.png', SITE_URL).href;
+
+/**
+ * The structured data.
+ *
+ * `Organization` rather than `FinancialService`: Vankoo is an academic project
+ * and does not provide regulated financial services, so claiming that type in
+ * markup would be a claim about the real world that is not true. The FAQ is
+ * marked up from the same strings the page renders — if the two ever disagree,
+ * Google treats it as cloaking, so there is only one source for both.
+ */
+const structuredData = {
+    '@context': 'https://schema.org',
+    '@graph': [
+        {
+            '@type': 'Organization',
+            '@id': `${SITE_URL}/#organization`,
+            name: 'Vankoo',
+            description: copy.meta.description,
+            url: SITE_URL,
+            logo: ogImage,
+            parentOrganization: {'@type': 'Organization', name: 'LiquiLabs'},
+            areaServed: {'@type': 'Country', name: 'Peru'}
+        },
+        {
+            '@type': 'WebSite',
+            '@id': `${SITE_URL}/#website`,
+            url: SITE_URL,
+            name: 'Vankoo',
+            inLanguage: htmlLang(locale),
+            publisher: {'@id': `${SITE_URL}/#organization`}
+        },
+        {
+            '@type': 'FAQPage',
+            mainEntity: copy.faq.items.map((item) => ({
+                '@type': 'Question',
+                name: item.question,
+                acceptedAnswer: {'@type': 'Answer', text: item.answer}
+            }))
+        }
+    ]
+};
+---
+
+<!doctype html>
+<html lang={htmlLang(locale)}>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <link rel="icon" href="/favicon.ico" sizes="32x32" />
+
+        <title>{title}</title>
+        <meta name="description" content={description} />
+        <meta name="generator" content={Astro.generator} />
+        {!indexable && <meta name="robots" content="noindex, follow" />}
+
+        <link rel="canonical" href={canonical} />
+        {alternates.map((alternate) => <link rel="alternate" hreflang={alternate.code} href={alternate.href} />)}
+        <link rel="alternate" hreflang="x-default" href={new URL(localePath(DEFAULT_LOCALE, path), SITE_URL).href} />
+
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Vankoo" />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:url" content={canonical} />
+        <meta property="og:locale" content={locale === 'es' ? 'es_PE' : 'en_US'} />
+        <meta property="og:image" content={ogImage} />
+        <meta property="og:image:alt" content={copy.meta.ogAlt} />
+        <meta name="twitter:card" content="summary_large_image" />
+
+        {/* The two brand surfaces, so the browser chrome stops fighting the page. */}
+        <meta name="theme-color" media="(prefers-color-scheme: light)" content="#EFF6FD" />
+        <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#071D33" />
+
+        <script is:inline set:html={JSON.stringify(structuredData)} type="application/ld+json" />
+
+        {/*
+          Paints the theme before the first frame.
+
+          It has to be inline and blocking: deferred, the page renders light and
+          then flips, which on a dark-themed device is a white flash in the face.
+          `vankoo.theme` is the same key vankoo-mype-web writes, so a choice made
+          in the product is already honoured here. No stored choice means follow
+          the system, which is why there is no third «auto» value to explain.
+        */}
+        <script is:inline>
+            (() => {
+                try {
+                    const stored = localStorage.getItem('vankoo.theme');
+                    const theme =
+                        stored === 'light' || stored === 'dark'
+                            ? stored
+                            : window.matchMedia('(prefers-color-scheme: dark)').matches
+                              ? 'dark'
+                              : 'light';
+                    document.documentElement.classList.toggle('dark', theme === 'dark');
+                } catch {
+                    /* Private mode can throw on localStorage. Light is the default. */
+                }
+                /* Tells the stylesheet that scripting is alive, which is what
+                   lets the reveal animations start from `opacity: 0`. Set here,
+                   before the first paint, so there is no frame in which the
+                   sections are visible and then hidden again. */
+                document.documentElement.classList.add('js');
+            })();
+        </script>
+    </head>
+
+    <body class="bg-surface text-fg antialiased">
+        <a
+            href="#contenido"
+            class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:rounded-lg focus:bg-surface-raised focus:px-4 focus:py-2 focus:shadow-elevation-2"
+        >
+            {copy.nav.skipToContent}
+        </a>
+
+        <slot />
+
+        {/*
+          Reveals sections as they come into view.
+
+          Guarded on IntersectionObserver and on the reduced-motion query, and it
+          only ever adds a class — the content is in the HTML and visible without
+          it, so a failure here costs an animation, never the page. Each element
+          is unobserved once it has arrived: this fires on the way in, and
+          re-animating on the way back up is the kind of motion that makes a page
+          feel restless.
+        */}
+        <script is:inline>
+            (() => {
+                if (!('IntersectionObserver' in window)) return;
+                if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+                const targets = document.querySelectorAll('.reveal, .reveal-stagger');
+
+                document.querySelectorAll('.reveal-stagger').forEach((group) => {
+                    Array.from(group.children).forEach((child, index) => {
+                        child.style.setProperty('--stagger-index', String(index));
+                    });
+                });
+
+                const observer = new IntersectionObserver(
+                    (entries) => {
+                        entries.forEach((entry) => {
+                            if (!entry.isIntersecting) return;
+                            entry.target.classList.add('is-visible');
+                            observer.unobserve(entry.target);
+                        });
+                    },
+                    {rootMargin: '0px 0px -12% 0px', threshold: 0.1}
+                );
+
+                targets.forEach((target) => observer.observe(target));
+            })();
+        </script>
+    </body>
+</html>

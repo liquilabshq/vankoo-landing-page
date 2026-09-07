@@ -1,0 +1,50 @@
+---
+import {useCopy, normalizeLocale} from '../../i18n';
+import SectionHeading from '../ui/SectionHeading.astro';
+
+const copy = useCopy(normalizeLocale(Astro.currentLocale));
+const {risk} = copy;
+
+/**
+ * The three grades, in the tokens the design system reserves for exactly this.
+ *
+ * `risk/a|b|c` is the platform's only scoring vocabulary, so the letters here
+ * are the same colours a screen inside the product would paint them.
+ */
+const tones = [
+    {fg: 'text-risk-a', bg: 'bg-risk-a-bg', ring: 'ring-risk-a/25'},
+    {fg: 'text-risk-b', bg: 'bg-risk-b-bg', ring: 'ring-risk-b/25'},
+    {fg: 'text-risk-c', bg: 'bg-risk-c-bg', ring: 'ring-risk-c/25'}
+];
+---
+
+<section class="relative isolate py-20 lg:py-28">
+    <div class="shell">
+        <div class="grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:items-center lg:gap-16">
+            <SectionHeading eyebrow={risk.eyebrow} title={risk.title} lead={risk.lead} class="reveal" />
+
+            <ul class="reveal-stagger grid gap-4 sm:grid-cols-3">
+                {
+                    risk.grades.map((grade, index) => (
+                        <li class="group flex flex-col gap-4 rounded-xl border border-line-subtle bg-surface-raised p-6 transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-elevation-2">
+                            <span
+                                class:list={[
+                                    'flex size-14 items-center justify-center rounded-lg font-display text-[length:var(--vk-text-h2-size)] font-bold ring-1 transition-transform duration-300 group-hover:scale-105',
+                                    tones[index].bg,
+                                    tones[index].fg,
+                                    tones[index].ring
+                                ]}
+                            >
+                                {grade.grade}
+                            </span>
+                            <span class="font-semibold text-fg">{grade.title}</span>
+                            <span class="text-fg-secondary">{grade.detail}</span>
+                        </li>
+                    ))
+                }
+            </ul>
+        </div>
+
+        <p class="reveal mt-8 text-[length:var(--vk-text-caption-size)] text-fg-secondary lg:text-right">{risk.note}</p>
+    </div>
+</section>

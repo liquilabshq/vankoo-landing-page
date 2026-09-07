@@ -1,0 +1,41 @@
+---
+/**
+ * The dot grid: the dot from the logo turned into a lattice.
+ *
+ * Figma's `Decor/DotField` is a 26px grid of 2px dots painted in `decor/dot` at
+ * 50% opacity, and those are the numbers here. In Figma it ships as two fixed
+ * sizes because stretching the instance deforms the dots; on the web a repeating
+ * background has no such problem, so one component covers any area.
+ *
+ * It works on dark surfaces as well as light — the component's own description
+ * in Figma still says light only, but that was settled the other way on
+ * 6 September 2026, and `decor/dot` is defined in both themes precisely so it
+ * can flip: grey on the light canvas, navy on the dark one.
+ */
+interface Props {
+    class?: string;
+    /** Fades the lattice out towards one edge so it never runs into a hard line. */
+    fade?: 'none' | 'bottom' | 'radial';
+}
+
+const {class: className = '', fade = 'radial'} = Astro.props;
+
+const masks = {
+    none: undefined,
+    bottom: 'linear-gradient(to bottom, black, transparent)',
+    radial: 'radial-gradient(ellipse 80% 60% at 50% 40%, black, transparent)'
+} as const;
+---
+
+<div
+    aria-hidden="true"
+    class:list={['pointer-events-none absolute inset-0', className]}
+    style={{
+        backgroundImage: 'radial-gradient(circle, var(--vk-decor-dot) 1px, transparent 1px)',
+        backgroundSize: '26px 26px',
+        opacity: '0.5',
+        maskImage: masks[fade],
+        WebkitMaskImage: masks[fade]
+    }}
+>
+</div>

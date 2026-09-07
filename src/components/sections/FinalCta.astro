@@ -1,0 +1,31 @@
+---
+import {APP_ROUTES} from '../../config/site';
+import {useCopy, normalizeLocale} from '../../i18n';
+import BrandPanel from '../decor/BrandPanel.astro';
+import Button from '../ui/Button.astro';
+
+const copy = useCopy(normalizeLocale(Astro.currentLocale));
+const {finalCta} = copy;
+---
+
+<section class="shell py-20 lg:py-28">
+    {/*
+      The brand panel returns to close the page, which is what makes the landing
+      feel like one object rather than a stack of sections. Its foreground is the
+      fixed white — never `text/inverse`, which flips with the theme and would
+      leave navy on navy in dark mode at 1.92:1.
+    */}
+    <div class="reveal relative isolate overflow-hidden rounded-xl px-6 py-16 text-center lg:px-16 lg:py-20">
+        <BrandPanel />
+
+        <div class="relative flex flex-col items-center gap-6">
+            <h2 class="type-hero max-w-[16ch] text-panel-fg">{finalCta.title}</h2>
+            <p class="type-lead max-w-[46ch] text-panel-fg-muted">{finalCta.lead}</p>
+
+            <div class="flex flex-col gap-3 pt-2 sm:flex-row">
+                <Button href={APP_ROUTES.signUp} icon="arrow-right">{finalCta.ctaPrimary}</Button>
+                <Button href={APP_ROUTES.signIn} variant="panel">{finalCta.ctaSecondary}</Button>
+            </div>
+        </div>
+    </div>
+</section>

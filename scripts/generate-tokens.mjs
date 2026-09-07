@@ -43,20 +43,39 @@ const FAMILIES = {
 };
 
 /**
- * The one rename this generator applies.
+ * Two names for one property is the failure this file exists to catch.
  *
- * In Figma `border/focus` names two different things: a 3 px stroke width in
- * Primitives and the focus-ring colour in Theme. Both carry the codeSyntax
- * `--vk-border-focus`, so flattening the collections declares the property
- * twice and the colour silently wins — the width just disappears. The widths
- * move to their own prefix. Worth fixing in Figma too, or the next generation
- * brings it back.
+ * Figma has collections; CSS has one namespace. Until 7 September 2026 both the
+ * 3 px focus stroke in `1. Primitives` and the focus-ring colour in `2. Theme`
+ * carried the codeSyntax `--vk-border-focus`. Flattened, the property was
+ * declared twice, the colour was declared second and won, and the width simply
+ * stopped existing — no warning anywhere, and the keyboard focus ring went with
+ * it, because `outline: var(--vk-border-focus) solid` given a colour is a
+ * declaration the browser drops whole.
+ *
+ * That was renamed at the source, so this generator no longer patches anything.
+ * What it does instead is refuse to write a stylesheet that has the problem
+ * again, whichever two tokens cause it next time.
  */
-const RENAMES = {
-    '1. Primitives|border/hairline': '--vk-border-width-hairline',
-    '1. Primitives|border/thick': '--vk-border-width-thick',
-    '1. Primitives|border/focus': '--vk-border-width-focus'
-};
+function assertNoCollisions(rows) {
+    const owners = new Map();
+    for (const row of rows) {
+        const origin = `${row.collection} / ${row.figmaName}`;
+        const seen = owners.get(row.name) ?? new Set();
+        seen.add(origin);
+        owners.set(row.name, seen);
+    }
+
+    const collisions = [...owners.entries()].filter(([, origins]) => origins.size > 1);
+    if (!collisions.length) return;
+
+    const detail = collisions.map(([name, origins]) => `  ${name} <- ${[...origins].join('  |  ')}`).join('\n');
+    throw new Error(
+        `Dos variables de Figma comparten el mismo nombre CSS. Al aplanarlas, la ultima\n` +
+            `declaracion gana y la otra desaparece sin error. Arreglalo en el codeSyntax de\n` +
+            `Figma, no aqui:\n${detail}`
+    );
+}
 
 /** Unitless by nature: weights are numbers, and a bare 0 needs no unit. */
 function formatValue(figmaName, raw) {
@@ -75,14 +94,13 @@ for (const line of lines) {
     const cells = line.split('|');
     if (cells[0] === 'V') {
         const [, collection, mode, figmaName, codeSyntax, value] = cells;
-        const key = `${collection}|${figmaName}`;
         rows.push({
             collection,
             mode,
             figmaName,
-            name: RENAMES[key] ?? cssName(codeSyntax) ?? derivedName(figmaName),
+            name: cssName(codeSyntax) ?? derivedName(figmaName),
             value: formatValue(figmaName, value),
-            derived: !cssName(codeSyntax) && !RENAMES[key]
+            derived: !cssName(codeSyntax)
         });
     } else if (cells[0] === 'T') {
         const [, name, family, style, size, lineHeight, tracking, textCase, decoration, bound] = cells;
@@ -91,6 +109,8 @@ for (const line of lines) {
         effectStyles.push({name: cells[1], effects: cells[2]});
     }
 }
+
+assertNoCollisions(rows);
 
 /** `DROP_SHADOW x y blur spread #hex on` for each layer, in Figma's own order. */
 function shadowCss(effects) {
@@ -168,10 +188,10 @@ const css = `/* Vankoo design tokens.
      .dark                   only what the Dark theme changes
      @media (width < 48rem)  only what the Mobile density changes
 
-   One rename is applied on the way in. Figma gives both the 3 px focus stroke
-   and the focus-ring colour the codeSyntax --vk-border-focus; flattened into one
-   namespace the colour wins and the width vanishes without a word. The stroke
-   widths are emitted as --vk-border-width-*. */
+   Every name here is Figma's own codeSyntax. The generator rewrites none of
+   them; it only refuses to run if two variables would claim the same one, since
+   flattening Figma's collections into CSS's single namespace makes the second
+   declaration win and the first vanish without a word. */
 
 :root {
     color-scheme: light;
